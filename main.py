@@ -1,59 +1,107 @@
-from openai import OpenAI
+"""Главный файл — подключается к MCP серверу и запускает GUI"""
+import os
+import sys
+import asyncio
+import threading
+import tkinter as tk
 
-# Конфигурация API (AITUNNEL)
-client = OpenAI(
-    api_key="sk-aitunnel-6nSOCdFD2jUgDD3fzNwfJtqFbtQl8BaL",
-    base_url="https://api.aitunnel.ru/v1/"
-)
+if os.name == "nt":
+    os.system("chcp 65001 >nul")
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
-# Системный промпт: задает тему (CS2) и сбалансированный характер
-system_prompt = (
-    "Ты — опытный игрок и собеседник, специализирующийся на Counter-Strike 2 (CS2). "
-    "Ты отлично разбираешься в раскидках, тактиках, экономике, оружии и про-сцене CS2. "
-    "Твой характер: сбалансированный. Ты не слишком добрый и не слишком грубый. "
-    "Отвечаешь по делу, иногда можешь слегка подкалывать собеседника, если он спрашивает очевидные вещи, но без откровенного хамства. "
-    "Общайся на русском языке, используй игровой сленг, где это уместно, и никогда не уходи от темы CS2."
-)
+from langchain_openai import ChatOpenAI
+from langchain_mcp_adapters.client import MultiServerMCPClient
 
-# История диалога
-messages = [
-    {"role": "system", "content": system_prompt}
-]
+from config import API_URL, API_KEY, MODEL, MCP_SERVER_SCRIPT
+from graph import build_graph, FALLBACK_TOOLS
+from gui import PizzaGUI
+
+
+class PizzaGPTApp:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.gui = PizzaGUI(self.root)
+        self.graph = None
+        self.mcp_client = None
+    
+    async def init_mcp_and_graph(self):
+        """Инициализирует MCP клиент и граф"""
+        try:
+            print("🔌 Подключение к MCP серверу...")
+            
+            self.mcp_client = MultiServerMCPClient({
+                "pizza-mcp": {
+                    "command": sys.executable,
+                    "args": [MCP_SERVER_SCRIPT],
+                    "transport": "stdio",
+                }
+            })
+            
+            # НОВЫЙ API 0.1.0+
+            tools = await self.mcp_client.get_tools()
+            print(f"✅ MCP инструменты: {[t.name for t in tools]}")
+            
+            llm = ChatOpenAI(
+                model=MODEL,
+                api_key=API_KEY,
+                base_url=API_URL,
+                temperature=0.7,
+                max_tokens=1024,
+            )
+            llm_with_tools = llm.bind_tools(tools)
+            
+            self.graph = build_graph(llm_with_tools, tools)
+            print("✅ Граф с MCP готов!")
+            
+            self.root.after(0, self.gui.set_graph, self.graph)
+            self.root.after(0, self.gui.show_welcome)
+            
+            # Держим соединение
+            while self.graph and self.root.winfo_exists():
+                await asyncio.sleep(1)
+        
+        except Exception as e:
+            print(f"⚠️ MCP не подключился: {e}")
+            print("🔄 Использую fallback инструменты (включая интернет)...")
+            
+            # FALLBACK — без MCP, но с интернетом!
+            llm = ChatOpenAI(
+                model=MODEL,
+                api_key=API_KEY,
+                base_url=API_URL,
+                temperature=0.7,
+                max_tokens=1024,
+            )
+            llm_with_tools = llm.bind_tools(FALLBACK_TOOLS)
+            
+            self.graph = build_graph(llm_with_tools, FALLBACK_TOOLS)
+            print(f"✅ Граф с fallback готов! Инструменты: {[t.name for t in FALLBACK_TOOLS]}")
+            
+            self.root.after(0, self.gui.set_graph, self.graph)
+            self.root.after(0, self.gui.show_welcome)
+    
+    def run(self):
+        def run_async():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(self.init_mcp_and_graph())
+            except Exception as e:
+                print(f"❌ Критическая ошибка: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        threading.Thread(target=run_async, daemon=True).start()
+        self.root.mainloop()
+
 
 def main():
-    print("=" * 50)
-    print("🎮 CS2 Chatbot запущен!")
-    print("Напиши 'выход', чтобы закрыть консоль.")
-    print("=" * 50)
-    print("Бот: Ну привет. Давай про КС2. Че хотел узнать? Раски на Мираж или как перестать быть серебром?")
+    app = PizzaGPTApp()
+    app.run()
 
-    while True:
-        try:
-            user_input = input("\nТы: ").strip()
-            
-            # Проверка на выход
-            if user_input.lower() in ["выход", "exit", "quit", "q", ""]:
-                if user_input.lower() in ["выход", "exit", "quit", "q"]:
-                    print("\nБот: Давай, не пропадай. Увидимся на мажоре.")
-                break
-                
-            messages.append({"role": "user", "content": user_input})
-            
-            # Запрос к модели qwen3.7-plus
-            response = client.chat.completions.create(
-                model="qwen3.7-plus",
-                messages=messages
-            )
-            
-            bot_reply = response.choices[0].message.content
-            print(f"\nБот: {bot_reply}")
-            messages.append({"role": "assistant", "content": bot_reply})
-            
-        except Exception as e:
-            print(f"\n[Ошибка API]: {e}")
-            # Если произошла ошибка, удаляем последнее сообщение, чтобы не ломать контекст диалога
-            if messages and messages[-1]["role"] == "user":
-                messages.pop()
 
 if __name__ == "__main__":
     main()
