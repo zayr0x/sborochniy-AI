@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Компьютерный AI</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<div class="sub-badge sub-vip" id="subBadge">
+  <span class="badge-icon">💎</span>
+  <span class="badge-text">VIP</span>
+</div>
+
+<!-- СТАРТ -->
+<div id="screen-start" class="screen active">
+  <div class="start-content">
+    <div class="logo-big">🖥️</div>
+    <h1 class="title-main">КОМПЬЮТЕРНЫЙ AI</h1>
+    <p class="title-sub">ИИ-агент думает сам и ищет цены в интернете!</p>
+    <button class="btn-start" onclick="showScreen('menu')">НАЧАТЬ РАБОТУ <span>→</span></button>
+  </div>
+</div>
+
+<!-- МЕНЮ -->
+<div id="screen-menu" class="screen">
+  <div class="container">
+    <div class="menu-header">
+      <button class="btn-back" onclick="showScreen('start')">← Назад</button>
+      <h1 class="menu-title">🖥️ КОМПЬЮТЕРНЫЙ AI</h1>
+      <div class="builds-counter">🔧 Сборок: <span id="buildsLeft">∞</span></div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card" onclick="showScreen('build')"><div class="menu-card-icon">🔧</div><h3>Собрать ПК</h3></div>
+      <div class="menu-card" onclick="openChat()"><div class="menu-card-icon">🤖</div><h3>ИИ Ассистент</h3></div>
+      <div class="menu-card" onclick="showScreen('features')"><div class="menu-card-icon">🎁</div><h3>Функции</h3></div>
+      <div class="menu-card" onclick="showScreen('sub')"><div class="menu-card-icon">⭐</div><h3>Подписка</h3></div>
+    </div>
+  </div>
+</div>
+
+<!-- СБОРКА -->
+<div id="screen-build" class="screen">
+  <div class="container">
+    <div class="menu-header">
+      <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
+      <h1 class="menu-title">🔧 Сборка ПК</h1>
+    </div>
+    <div class="build-form">
+      <div class="form-sec">
+        <label class="sec-label">🖥️ Устройство</label>
+        <div class="opt-row">
+          <button class="opt active" data-g="device" data-v="pc" onclick="selOpt(this)">🖥️ ПК</button>
+          <button class="opt" data-g="device" data-v="laptop" onclick="selOpt(this)">💻 Ноутбук</button>
+        </div>
+      </div>
+      <div class="form-sec">
+        <label class="sec-label">💰 Бюджет: <span id="bVal" class="b-val">100 000 ₽</span></label>
+        <input type="range" id="bSlider" min="30000" max="500000" step="5000" value="100000" oninput="updBudget(this.value)">
+      </div>
+      <div class="form-sec">
+        <label class="sec-label">🎯 Назначение</label>
+        <div class="opt-row">
+          <button class="opt active" data-g="purpose" data-v="gaming" onclick="selOpt(this)">🎮 Игры</button>
+          <button class="opt" data-g="purpose" data-v="programming" onclick="selOpt(this)">⌨️ Код</button>
+          <button class="opt" data-g="purpose" data-v="design" onclick="selOpt(this)">🎨 Дизайн</button>
+          <button class="opt" data-g="purpose" data-v="streaming" onclick="selOpt(this)">📺 Стрим</button>
+          <button class="opt" data-g="purpose" data-v="work" onclick="selOpt(this)">💼 Работа</button>
+        </div>
+      </div>
+      <div class="form-sec">
+        <label class="sec-label">🎨 Цвет</label>
+        <div class="opt-row">
+          <button class="opt active" data-g="color" data-v="black" onclick="selOpt(this)">⚫ Чёрный</button>
+          <button class="opt" data-g="color" data-v="white" onclick="selOpt(this)">⚪ Белый</button>
+          <button class="opt" data-g="color" data-v="pink" onclick="selOpt(this)">🌸 Розовый</button>
+          <button class="opt" data-g="color" data-v="rgb" onclick="selOpt(this)">🌈 RGB</button>
+        </div>
+      </div>
+      <div class="form-sec">
+        <label class="sec-label">✨ Стиль</label>
+        <div class="opt-row">
+          <button class="opt active" data-g="style" data-v="minimal" onclick="selOpt(this)">🖤 Минимализм</button>
+          <button class="opt" data-g="style" data-v="rgb" onclick="selOpt(this)">🌈 RGB</button>
+          <button class="opt" data-g="style" data-v="anime" onclick="selOpt(this)">🌸 Аниме</button>
+          <button class="opt" data-g="style" data-v="glass" onclick="selOpt(this)">🪟 Glass</button>
+          <button class="opt" data-g="style" data-v="retro" onclick="selOpt(this)">🎞️ Ретро</button>
+        </div>
+      </div>
+      <div class="form-sec">
+        <label class="sec-label">🔍 Хочу конкретную модель (опционально)</label>
+        <input type="text" id="cCpu" class="inp" placeholder="Процессор, например: AMD Ryzen 7 7800X3D">
+        <input type="text" id="cGpu" class="inp" placeholder="Видеокарта, например: RTX 4070 Super" style="margin-top:10px;">
+      </div>
+      <div class="form-sec">
+        <label class="sec-label">🎮 Любимые игры и пожелания</label>
+        <textarea id="cWishes" class="inp wishes-area" placeholder="Играю в Cyberpunk 2077, хочу тихий ПК, нужен Wi-Fi..." rows="4"></textarea>
+      </div>
+      <button class="btn-build" onclick="doBuild()">⚡ ИИ, СОБЕРИ СИСТЕМУ</button>
+    </div>
+    <div id="resBox" class="res-box" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ФУНКЦИИ -->
+<div id="screen-features" class="screen">
+  <div class="container">
+    <div class="menu-header">
+      <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
+      <h1 class="menu-title">🎁 Функции подписки</h1>
+    </div>
+    <div class="features-full">
+      <div class="feature-section"><div class="feature-head"><span class="feature-tag plus">⭐ Плюс</span></div><div class="feature-list">
+        <button class="feature-btn" onclick="useFeature('Безлимит')"><span class="fb-icon">🔓</span><div><b>Безлимит сборок</b></div></button>
+        <button class="feature-btn" onclick="useFeature('Сравнение цен')"><span class="fb-icon">💹</span><div><b>Сравнение цен</b></div></button>
+      </div></div>
+      <div class="feature-section premium-section"><div class="feature-head"><span class="feature-tag premium">👑 Премиум</span></div><div class="feature-list">
+        <button class="feature-btn" onclick="openChatPro()"><span class="fb-icon">🧠</span><div><b>ИИ PRO (GPT-4o)</b></div></button>
+        <button class="feature-btn" onclick="useFeature('Поддержка')"><span class="fb-icon">⚡</span><div><b>Приоритетная поддержка</b></div></button>
+      </div></div>
+      <div class="feature-section vip-section"><div class="feature-head"><span class="feature-tag vip">💎 VIP</span></div><div class="feature-list">
+        <button class="feature-btn" onclick="openChatManager()"><span class="fb-icon">👔</span><div><b>Менеджер 24/7</b></div></button>
+        <button class="feature-btn" onclick="useFeature('Сборка под ключ')"><span class="fb-icon">🔧</span><div><b>Сборка под ключ</b></div></button>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ПОДПИСКА -->
+<div id="screen-sub" class="screen">
+  <div class="container">
+    <div class="menu-header">
+      <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
+      <h1 class="menu-title">⭐ Подписка</h1>
+    </div>
+    <div class="plans">
+      <div class="plan"><div class="plan-ico">⭐</div><h3>Плюс</h3>
+        <div class="prices">
+          <button onclick="buySub('Плюс','1 мес',49)">1 мес — <b>49₽</b></button>
+          <button onclick="buySub('Плюс','6 мес',250)">6 мес — <b>250₽</b></button>
+          <button class="best" onclick="buySub('Плюс','Навсегда',990)">Навсегда — <b>990₽</b></button>
+        </div>
+      </div>
+      <div class="plan feat"><div class="badge">🔥 Лучший</div><div class="plan-ico">👑</div><h3>Премиум</h3>
+        <div class="prices">
+          <button onclick="buySub('Премиум','1 мес',149)">1 мес — <b>149₽</b></button>
+          <button onclick="buySub('Премиум','6 мес',760)">6 мес — <b>760₽</b></button>
+          <button class="best" onclick="buySub('Премиум','Навсегда',2990)">Навсегда — <b>2990₽</b></button>
+        </div>
+      </div>
+      <div class="plan vip-plan"><div class="badge vip">💎 VIP</div><div class="plan-ico">💎</div><h3>ВИП</h3>
+        <div class="prices">
+          <button onclick="buySub('ВИП','1 мес',299)">1 мес — <b>299₽</b></button>
+          <button onclick="buySub('ВИП','6 мес',1525)">6 мес — <b>1525₽</b></button>
+          <button class="best" onclick="buySub('ВИП','Навсегда',5990)">Навсегда — <b>5990₽</b></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ЧАТ (только ТЕМА, без цвета и задачи) -->
+<div id="chatFull" class="chat-full">
+  <div class="chat-top">
+    <div class="chat-left">
+      <h2>🤖 ИИ Ассистент</h2>
+      <div class="mode-sw">
+        <button id="mFree" class="mode active" onclick="setMode('free')">🆓 Обычный</button>
+        <button id="mPro" class="mode" onclick="setMode('pro')">👑 PRO</button>
+        <button id="mManager" class="mode" onclick="setMode('manager')">👔 Менеджер</button>
+        <button id="mSupport" class="mode" onclick="setMode('support')">⚡ Поддержка</button>
+      </div>
+    </div>
+    <button class="btn-close" onclick="closeChat()">✕ Закрыть</button>
+  </div>
+
+  <!-- ТОЛЬКО ТЕМА (цвет и задача убраны!) -->
+  <div class="chat-context">
+    <div class="ctx-row">
+      <label>🎨 Стиль ответа:</label>
+      <select id="ctxTheme" onchange="updateContext()">
+        <option value="">Обычный</option>
+        <option value="minimal">Минимализм</option>
+        <option value="rgb">RGB-энтузиазм</option>
+        <option value="anime">Аниме-стиль 🌸</option>
+        <option value="glass">Элегантный</option>
+        <option value="retro">Ретро/Винтаж</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="chatMsgs" class="chat-msgs">
+    <div class="msg bot">
+      <b>Привет! 👋</b><br>
+      Я эксперт по ПК с доступом в интернет.<br><br>
+      🆓 <b>Обычный</b> — работает<br>
+      👑 <b>PRO</b> — в разработке<br>
+      👔 <b>Менеджер</b> — в разработке<br>
+      ⚡ <b>Поддержка</b> — в разработке<br><br>
+      Выбери стиль ответа сверху!
+    </div>
+  </div>
+
+  <div class="chat-inp-area">
+    <input type="text" id="chatInp" placeholder="Задай вопрос о ПК..." onkeydown="if(event.key==='Enter')sendMsg()">
+    <button onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<!-- МОДАЛКА -->
+<div id="modal" class="modal" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('modal').style.display='none'">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ЗАГРУЗКА -->
+<div id="loader" class="loader">
+  <div class="spinner"></div>
+  <p id="loaderText">🧠 ИИ ищет цены в интернете...</p>
+</div>
+
+<script>
+const state = {
+  device:'pc', purpose:'gaming', color:'black', style:'minimal',
+  budget:100000, custom_cpu:'', custom_gpu:'', custom_wishes:'',
+  buildsUsed: parseInt(localStorage.getItem('buildsUsed') || '0'),
+  subscription: localStorage.getItem('sub') || 'vip',
+  chatMode: 'free',
+  chatHistory: []
+};
+
+let chatContext = { theme: '' };  // ТОЛЬКО тема!
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+id)?.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function selOpt(btn){
+  document.querySelectorAll(`.opt[data-g="${btn.dataset.g}"]`).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state[btn.dataset.g] = btn.dataset.v;
+}
+
+function updBudget(v){
+  state.budget = parseInt(v);
+  document.getElementById('bVal').textContent = Number(v).toLocaleString('ru-RU') + ' ₽';
+}
+
+function fmtP(n){ return Number(n).toLocaleString('ru-RU') + ' ₽'; }
+
+async function doBuild(){
+  state.custom_cpu = document.getElementById('cCpu')?.value.trim() || '';
+  state.custom_gpu = document.getElementById('cGpu')?.value.trim() || '';
+  state.custom_wishes = document.getElementById('cWishes')?.value.trim() || '';
+
+  document.getElementById('loader').classList.add('active');
+
+  try {
+    const res = await fetch('/api/build', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(state)});
+    const data = await res.json();
+    
+    setTimeout(() => {
+      document.getElementById('loader').classList.remove('active');
+      if(data.error){
+        alert('Ошибка: ' + data.error);
+        return;
+      }
+      renderBuild(data);
+    }, 1500);
+  } catch(e){
+    document.getElementById('loader').classList.remove('active');
+    alert('Ошибка: ' + e.message);
+  }
+}
+
+function renderBuild(d){
+  const box = document.getElementById('resBox');
+  let h = `<div class="res-head"><h2>🎉 ${d.type === 'ПК' ? 'Сборка' : 'Ноутбук'}</h2></div>`;
+  if(d.reasoning) h += `<div class="ai-thinking"><b>💡 Почему эта сборка:</b><br>${esc(d.reasoning)}</div>`;
+  
+  h += '<div class="comp-list">';
+  d.components.forEach(c => {
+    let shops = Object.entries(c.shops).map(([s,u]) => `<a href="${u}" target="_blank" class="shop-lnk">${s}</a>`).join('');
+    const btn = state.subscription !== 'free' 
+      ? `<button class="btn-compare" onclick="comparePrices('${esc(c.name).replace(/'/g,"\\'")}',${c.price})">💹 Цены</button>`
+      : `<button class="btn-compare locked" onclick="needSub()">🔒 Цены</button>`;
+    const badge = c.price_found ? '<span class="price-found">✓ из интернета</span>' : '';
+    h += `<div class="comp-it"><div class="comp-ico">${c.icon}</div><div class="comp-info"><div class="comp-lbl">${c.label} ${badge}</div><div class="comp-nm">${esc(c.name)}</div><div class="comp-shops">🛒 ${shops}${btn}</div></div><div class="comp-pr">${c.price>0?fmtP(c.price):'—'}</div></div>`;
+  });
+  h += '</div>';
+  h += `<div class="total-box"><div class="tot-lbl">Итого</div><div class="tot-pr">${fmtP(d.total_price)}</div></div>`;
+  h += `<button class="btn-again" onclick="doBuild()">🔄 Другая сборка</button>`;
+  
+  box.innerHTML = h;
+  box.style.display = 'block';
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+async function comparePrices(name, price){
+  document.getElementById('modalBody').innerHTML = '<div class="spinner" style="margin:20px auto;"></div><p>🔍 Ищем цены...</p>';
+  document.getElementById('modal').style.display = 'flex';
+  try{
+    const r = await fetch('/api/compare', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({component:name, base_price:price, subscription:state.subscription})});
+    const d = await r.json();
+    if(d.error){ document.getElementById('modalBody').innerHTML = `<h3>🔒 ${d.error}</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('sub')">Оформить</button>`; return; }
+    let rows = `<div class="price-row base"><span class="shop">Базовая</span><span class="pr">${fmtP(d.base_price||price)}</span></div>`;
+    d.prices.forEach(p => {
+      rows += `<div class="price-row"><div><span class="shop">${esc(p.shop)}</span> ${p.url?`<a href="${p.url}" target="_blank" class="shop-lnk">→</a>`:''}<br><small>${esc(p.note||'')}</small></div><span class="pr">${fmtP(p.price)}</span></div>`;
+    });
+    document.getElementById('modalBody').innerHTML = `<h3>💹 ${esc(name)}</h3><div class="prices-list">${rows}</div><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`;
+  }catch(e){ document.getElementById('modalBody').innerHTML = '<p>Ошибка</p>'; }
+}
+
+function buySub(plan, period, price){
+  const key = plan.toLowerCase();
+  state.subscription = key;
+  localStorage.setItem('sub', key);
+  showModal(`<h3>🎉 ${plan} ${period}</h3><div class="modal-pr">${fmtP(price)}</div><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`);
+}
+
+function useFeature(l){ showModal(`<h3>✅ ${l}</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`); }
+function needSub(){ showModal(`<h3>🔒 Нужна подписка</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('sub')">Оформить</button>`); }
+
+function openChat(){ document.getElementById('chatFull').classList.add('open'); setMode('free'); }
+function openChatPro(){ document.getElementById('chatFull').classList.add('open'); setMode('pro'); }
+function openChatManager(){ document.getElementById('chatFull').classList.add('open'); setMode('manager'); }
+function closeChat(){ document.getElementById('chatFull').classList.remove('open'); }
+
+function setMode(m){
+  state.chatMode = m;
+  ['mFree','mPro','mManager','mSupport'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById({'free':'mFree','pro':'mPro','manager':'mManager','support':'mSupport'}[m]).classList.add('active');
+}
+
+function updateContext(){
+  chatContext.theme = document.getElementById('ctxTheme')?.value || '';
+  const chatFull = document.getElementById('chatFull');
+  chatFull.classList.remove('theme-minimal','theme-rgb','theme-anime','theme-glass','theme-retro');
+  if(chatContext.theme) chatFull.classList.add('theme-' + chatContext.theme);
+}
+
+async function sendMsg(){
+  const inp = document.getElementById('chatInp');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value = '';
+  
+  const msgs = document.getElementById('chatMsgs');
+  msgs.innerHTML += `<div class="msg user">${esc(msg)}</div>`;
+  msgs.innerHTML += `<div class="msg bot" id="typing">⏳ Думаю...</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  state.chatHistory.push({role:'user', content:msg});
+  
+  try{
+    const r = await fetch('/api/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg, mode:state.chatMode, history:state.chatHistory, context:chatContext})});
+    const d = await r.json();
+    const t = document.getElementById('typing');
+    if(t){
+      t.removeAttribute('id');
+      let badges = '';
+      if(d.used_search) badges += '<span class="search-badge">🔍 Веб-поиск</span>';
+      if(d.in_dev) badges += '<span class="dev-badge">🚧 В разработке</span>';
+      t.innerHTML = esc(d.response).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>') + badges;
+    }
+    state.chatHistory.push({role:'assistant', content:d.response});
+  }catch(e){
+    const t = document.getElementById('typing');
+    if(t){ t.removeAttribute('id'); t.textContent = '❌ Ошибка: ' + e.message; }
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function esc(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function showModal(h){ document.getElementById('modalBody').innerHTML = h; document.getElementById('modal').style.display = 'flex'; }
+</script>
+</body>
+</html>
