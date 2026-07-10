@@ -2047,3 +2047,116 @@ body.theme-light .dev-contact-btn {
   }
   .dev-handle { display: none; }
 }
+/* ============ РАСШИРЕННЫЙ BADGE (ещё больше) ============ */
+.sub-badge {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  top: auto;
+  left: auto;
+  z-index: 999;
+  padding: 16px 28px;
+  background: rgba(17, 17, 25, 0.95);
+  border: 2px solid var(--dim);
+  border-radius: 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(15px);
+  pointer-events: none;
+  min-width: 180px;
+  max-width: 280px;
+}
+
+.badge-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.4;
+  gap: 3px;
+  flex: 1;
+}
+
+.badge-text {
+  color: var(--txt);
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.badge-timer {
+  color: var(--dim);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+.badge-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.sub-badge.sub-vip {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.2));
+  box-shadow: 0 6px 35px rgba(251, 191, 36, 0.5);
+}
+.sub-badge.sub-premium {
+  border-color: var(--c2);
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(0, 212, 255, 0.2));
+  box-shadow: 0 6px 35px rgba(168, 85, 247, 0.5);
+}
+.sub-badge.sub-plus {
+  border-color: var(--c4);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(0, 212, 255, 0.15));
+}
+.sub-badge.sub-vip .badge-timer { color: var(--gold); }
+.sub-badge.sub-premium .badge-timer { color: var(--c2); }
+.sub-badge.sub-plus .badge-timer { color: var(--c4); }
+
+/* ============ GOOGLE OAUTH ============ */
+.google-auth-section {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.auth-subtitle {
+  color: var(--dim);
+  font-size: 14px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--c1);
+  object-fit: cover;
+}
+
+/* ============ СВЕТЛАЯ ТЕМА - badge ============ */
+body.theme-light .sub-badge {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #d1d1d6;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 600px) {
+  .sub-badge {
+    bottom: 10px;
+    right: 10px;
+    padding: 12px 20px;
+    font-size: 14px;
+    min-width: 150px;
+  }
+  .badge-icon { font-size: 22px; }
+  .badge-text { font-size: 14px; }
+  .badge-timer { font-size: 12px; }
+}

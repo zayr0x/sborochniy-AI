@@ -6,12 +6,14 @@
 <title>Компьютерный AI</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Google Identity Services для OAuth -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
 <div class="bg-grid"></div>
 
-<!-- BADGE С ПОДПИСКОЙ (в нижнем правом углу, с точным таймером) -->
+<!-- РАСШИРЕННЫЙ BADGE ПОДПИСКИ -->
 <div class="sub-badge sub-free" id="subBadge">
   <span class="badge-icon">🆓</span>
   <div class="badge-info">
@@ -37,10 +39,20 @@
     <h1 class="title-main">КОМПЬЮТЕРНЫЙ AI</h1>
     <p class="title-sub">ИИ-агент думает сам и ищет цены в реальных магазинах</p>
     <button class="btn-start" onclick="showScreen('menu')">НАЧАТЬ РАБОТУ <span>→</span></button>
+    
+    <!-- Google OAuth кнопка -->
+    <div class="google-auth-section">
+      <p class="auth-subtitle">Войдите через Google для доступа ко всем функциям</p>
+      <div id="g_id_onload"
+           data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+           data-callback="handleGoogleSignIn"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin" data-type="standard" data-size="large" data-theme="filled_black" data-text="signin_with" data-shape="pill" data-width="300"></div>
+    </div>
+    
     <div class="start-links">
-      <button class="btn-ghost" onclick="showScreen('login')">👤 Войти</button>
-      <button class="btn-ghost" onclick="showScreen('register')">✨ Регистрация</button>
-      <a href="https://t.me/sborochniy_AI" target="_blank" class="btn-ghost">📱 Telegram</a>
+      <a href="https://t.me/sborochniy_AI" target="_blank" class="btn-ghost">📱 Telegram канал</a>
     </div>
   </div>
 </div>
@@ -51,19 +63,23 @@
     <div class="menu-header">
       <button class="btn-back" onclick="showScreen('start')">← Назад</button>
       <h1 class="menu-title">🖥️ КОМПЬЮТЕРНЫЙ AI</h1>
+      
+      <!-- Панель пользователя (только Google аккаунт) -->
       <div id="userPanelLoggedOut" class="user-panel">
-        <button class="btn-ghost small" onclick="showScreen('login')">👤 Войти</button>
-        <button class="btn-ghost small" onclick="showScreen('register')">✨ Регистрация</button>
+        <p style="color:var(--dim);">Войдите через Google для доступа</p>
       </div>
       <div id="userPanelLoggedIn" class="user-panel" style="display:none;">
+        <img id="userAvatar" class="user-avatar" src="" alt="">
         <span class="user-nick" id="userNick">Гость</span>
         <button class="btn-ghost small" onclick="showScreen('settings')">⚙️</button>
-        <button class="btn-ghost small" onclick="logout()">🚪</button>
+        <button class="btn-ghost small" onclick="logout()">🚪 Выйти</button>
       </div>
+      
       <div class="builds-counter" id="buildsCounter">
         🔧 Сборок осталось: <span id="buildsLeft">3</span>/3
       </div>
     </div>
+    
     <div class="menu-grid-compact">
       <button class="menu-card-compact" onclick="showScreen('build')">
         <span class="mcc-icon">🔧</span>
@@ -87,47 +103,17 @@
         <span class="mcc-text">Подписка</span>
       </button>
     </div>
+    
+    <!-- Длинная кнопка связи -->
+    <a href="https://t.me/zayr0x" target="_blank" class="dev-contact-btn">
+      <span class="dev-icon">💬</span>
+      <span class="dev-text">Связь с разработчиком</span>
+      <span class="dev-handle">@zayr0x</span>
+    </a>
   </div>
 </div>
 
-<!-- ВХОД -->
-<div id="screen-login" class="screen">
-  <div class="container auth-container">
-    <button class="btn-back" onclick="showScreen('start')">← Назад</button>
-    <h1 class="menu-title">👤 Вход</h1>
-    <div class="auth-box">
-      <input type="text" id="loginLogin" class="inp" placeholder="Email или никнейм">
-      <input type="password" id="loginPass" class="inp" placeholder="Пароль">
-      <div id="loginError" class="auth-error" style="display:none;"></div>
-      <button class="btn-build" onclick="doLogin()">ВОЙТИ</button>
-      <p class="auth-switch">Нет аккаунта? <a onclick="showScreen('register')">Зарегистрироваться</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- РЕГИСТРАЦИЯ -->
-<div id="screen-register" class="screen">
-  <div class="container auth-container">
-    <button class="btn-back" onclick="showScreen('start')">← Назад</button>
-    <h1 class="menu-title">✨ Регистрация</h1>
-    <div class="auth-box">
-      <input type="email" id="regEmail" class="inp" placeholder="Email">
-      <input type="text" id="regNick" class="inp" placeholder="Никнейм (a-z, 0-9, _)" oninput="validateNickname(this)">
-      <input type="password" id="regPass" class="inp" placeholder="Пароль (минимум 6 символов)">
-      <input type="password" id="regPass2" class="inp" placeholder="Повторите пароль">
-      <div id="regError" class="auth-error" style="display:none;"></div>
-      <button class="btn-build" onclick="sendCode()">ОТПРАВИТЬ КОД</button>
-      <div id="codeSection" style="display:none;">
-        <p class="auth-info">📧 Код отправлен с <b id="confirmEmail"></b></p>
-        <input type="text" id="regCode" class="inp" placeholder="6-значный код" maxlength="6">
-        <button class="btn-build" onclick="confirmRegister()">ПОДТВЕРДИТЬ</button>
-      </div>
-      <p class="auth-switch">Уже есть аккаунт? <a onclick="showScreen('login')">Войти</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- НАСТРОЙКИ -->
+<!-- НАСТРОЙКИ (только никнейм + тема) -->
 <div id="screen-settings" class="screen">
   <div class="container">
     <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
@@ -136,7 +122,7 @@
       <div class="settings-row">
         <label>👤 Никнейм</label>
         <div class="settings-inline">
-          <input type="text" id="setNick" class="inp" oninput="validateNickname(this)" placeholder="Введите новый никнейм">
+          <input type="text" id="setNick" class="inp" placeholder="Новый никнейм">
           <button class="btn-save" onclick="changeNickname()">Сохранить</button>
         </div>
         <div class="settings-hint">Только английские буквы, цифры и _ (3-20 символов)</div>
@@ -149,9 +135,8 @@
         </select>
       </div>
       <div class="settings-row">
-        <label>📧 Email</label>
+        <label>📧 Email (только чтение)</label>
         <input type="email" id="setEmail" class="inp" readonly>
-        <button class="btn-save" style="margin-top:10px;" onclick="confirmEmail()">Подтвердить email</button>
       </div>
     </div>
   </div>
@@ -240,13 +225,13 @@
         <div class="feature-head"><span class="feature-tag plus">⭐ Плюс</span></div>
         <div class="feature-list">
           <button class="feature-btn" data-req="plus" onclick="useFeature('Безлимит сборок')"><span class="fb-icon">🔓</span><div><b>Безлимит сборок</b><p>Без ограничений</p></div></button>
-          <button class="feature-btn" data-req="plus" onclick="useFeature('Сравнение цен')"><span class="fb-icon">💹</span><div><b>Сравнение цен</b><p>DNS, Ситилинк, Ozon, Я.Маркет</p></div></button>
           <button class="feature-btn" data-req="plus" onclick="openChat()"><span class="fb-icon">🤖</span><div><b>ИИ Ассистент</b><p>Короткие ответы</p></div></button>
         </div>
       </div>
       <div class="feature-section premium-section">
         <div class="feature-head"><span class="feature-tag premium">👑 Премиум</span></div>
         <div class="feature-list">
+          <button class="feature-btn" data-req="premium" onclick="useFeature('Сравнение цен')"><span class="fb-icon">💹</span><div><b>Сравнение цен</b><p>DNS, Ситилинк, Ozon, Я.Маркет</p></div></button>
           <button class="feature-btn" data-req="premium" onclick="useFeature('Ранний доступ')"><span class="fb-icon">🚀</span><div><b>Ранний доступ</b><p>Новые функции первыми</p></div></button>
         </div>
       </div>
@@ -270,7 +255,7 @@
     </div>
     <div class="plans">
       <div class="plan"><div class="plan-ico">⭐</div><h3>Плюс</h3>
-        <ul><li>✅ Безлимит сборок</li><li>✅ Сравнение цен</li><li>✅ ИИ Ассистент</li></ul>
+        <ul><li>✅ Безлимит сборок</li><li>✅ ИИ Ассистент</li></ul>
         <div class="prices">
           <button onclick="buySub('Плюс','1 мес',49,30)">1 мес — <b>49₽</b></button>
           <button onclick="buySub('Плюс','6 мес',250,180)"><span class="disc">-15%</span> 6 мес — <b>250₽</b></button>
@@ -279,7 +264,7 @@
         </div>
       </div>
       <div class="plan feat"><div class="badge">🔥 Лучший</div><div class="plan-ico">👑</div><h3>Премиум</h3>
-        <ul><li>✅ Всё из "Плюс"</li><li>✅ Ранний доступ к фичам</li></ul>
+        <ul><li>✅ Всё из "Плюс"</li><li>✅ Сравнение цен в магазинах</li><li>✅ Ранний доступ к фичам</li></ul>
         <div class="prices">
           <button onclick="buySub('Премиум','1 мес',149,30)">1 мес — <b>149₽</b></button>
           <button onclick="buySub('Премиум','6 мес',760,180)"><span class="disc">-15%</span> 6 мес — <b>760₽</b></button>
@@ -312,16 +297,17 @@
     </div>
     <button class="btn-close" onclick="closeChat()">✕ Закрыть</button>
   </div>
+  <!-- Контекст ТОЛЬКО для оформления (CSS), не влияет на стиль ответов -->
   <div class="chat-context">
     <div class="ctx-row">
-      <label>🎨 Стиль чата:</label>
+      <label>🎨 Оформление чата:</label>
       <select id="ctxTheme" onchange="updateContext()">
         <option value="">Обычный</option>
         <option value="minimal">Минимализм</option>
-        <option value="rgb">RGB-энтузиазм</option>
-        <option value="anime">Аниме-стиль 🌸</option>
-        <option value="glass">Элегантный</option>
-        <option value="retro">Ретро/Винтаж</option>
+        <option value="rgb">RGB-стиль</option>
+        <option value="anime">Аниме 🌸</option>
+        <option value="glass">Стекло</option>
+        <option value="retro">Ретро</option>
       </select>
     </div>
   </div>
@@ -359,12 +345,10 @@ const state = {
   subExpiry: parseInt(localStorage.getItem('subExpiry') || '0'),
   chatMode: 'free', chatHistory: [],
   user: JSON.parse(localStorage.getItem('user') || 'null'),
-  settings: JSON.parse(localStorage.getItem('settings') || '{"lang":"ru","theme":"dark"}'),
+  settings: JSON.parse(localStorage.getItem('settings') || '{"theme":"dark"}'),
 };
 
 let chatContext = { theme: '' };
-let tempCode = null;
-let tempRegData = null;
 let turnkeyStep = 1;
 let turnkeyAnswers = {};
 
@@ -384,7 +368,7 @@ function showScreen(id){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-// ============ ПОДПИСКА + ТОЧНЫЙ ТАЙМЕР ============
+// ============ ПОДПИСКА + ТАЙМЕР ============
 function updateSubBadge(){
   const badge = document.getElementById('subBadge');
   if(!badge) return;
@@ -406,20 +390,10 @@ function updateSubBadge(){
 function updateSubTimer(){
   const timer = document.getElementById('badgeTimer');
   if(!timer) return;
-  
-  if(state.subscription === 'free'){
-    timer.textContent = '';
-    return;
-  }
-  
-  if(state.subExpiry === -1){
-    timer.textContent = '∞ навсегда';
-    return;
-  }
-  
+  if(state.subscription === 'free'){ timer.textContent = ''; return; }
+  if(state.subExpiry === -1){ timer.textContent = '∞'; return; }
   const now = Date.now();
   const expiry = state.subExpiry;
-  
   if(expiry <= now){
     state.subscription = 'free';
     localStorage.setItem('sub', 'free');
@@ -428,28 +402,23 @@ function updateSubTimer(){
     updateBuildsCounter();
     return;
   }
-  
   const diff = expiry - now;
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
   
-  // Формат: "2д 14ч 35м 12с"
-  if(days > 0){
-    timer.textContent = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
-  } else if(hours > 0){
-    timer.textContent = `${hours}ч ${minutes}м ${seconds}с`;
-  } else if(minutes > 0){
-    timer.textContent = `${minutes}м ${seconds}с`;
-  } else {
-    timer.textContent = `${seconds}с`;
-  }
+  // Компактный формат для badge
+  if(days > 30) timer.textContent = `${days}д`;
+  else if(days > 0) timer.textContent = `${days}д ${hours}ч`;
+  else if(hours > 0) timer.textContent = `${hours}ч ${minutes}м`;
+  else if(minutes > 0) timer.textContent = `${minutes}м ${seconds}с`;
+  else timer.textContent = `${seconds}с`;
 }
 
 function startTimerUpdate(){
   updateSubTimer();
-  setInterval(updateSubTimer, 1000); // каждую секунду
+  setInterval(updateSubTimer, 1000);
 }
 
 function updateUserPanels(){
@@ -458,7 +427,14 @@ function updateUserPanels(){
   if(state.user){
     loggedOut.style.display = 'none';
     loggedIn.style.display = 'flex';
-    document.getElementById('userNick').textContent = '👤 ' + state.user.nickname;
+    document.getElementById('userNick').textContent = state.user.nickname;
+    const avatar = document.getElementById('userAvatar');
+    if(state.user.picture) {
+      avatar.src = state.user.picture;
+      avatar.style.display = 'block';
+    } else {
+      avatar.style.display = 'none';
+    }
   } else {
     loggedOut.style.display = 'flex';
     loggedIn.style.display = 'none';
@@ -469,12 +445,10 @@ function updateBuildsCounter(){
   const counter = document.getElementById('buildsCounter');
   const left = document.getElementById('buildsLeft');
   if(!counter || !left) return;
-  if(state.subscription !== 'free'){
-    counter.style.display = 'none';
-  } else {
+  if(state.subscription !== 'free'){ counter.style.display = 'none'; }
+  else {
     counter.style.display = 'inline-block';
-    const remaining = Math.max(0, 3 - state.buildsUsed);
-    left.textContent = remaining;
+    left.textContent = Math.max(0, 3 - state.buildsUsed);
   }
 }
 
@@ -494,74 +468,24 @@ function applyTheme(){
   localStorage.setItem('settings', JSON.stringify(state.settings));
 }
 
-async function changeNickname(){
-  const newNick = document.getElementById('setNick').value.trim();
-  if(!/^[a-zA-Z0-9_]+$/.test(newNick)){ alert('Никнейм: только английские буквы, цифры и _'); return; }
-  if(newNick.length < 3 || newNick.length > 20){ alert('Никнейм: 3-20 символов'); return; }
-  try{
-    const r = await fetch('/api/auth', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'change_nickname', email: state.user?.email || 'guest', nickname: newNick})
-    });
-    const d = await r.json();
-    if(d.success){
-      if(state.user){
-        state.user.nickname = d.nickname;
-        localStorage.setItem('user', JSON.stringify(state.user));
-        updateUserPanels();
-      }
-      showModal('<h3>✅ Никнейм изменён!</h3><p>Новый: <b>' + esc(d.nickname) + '</b></p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
-    } else {
-      alert(d.error || 'Ошибка');
-    }
-  }catch(e){ alert('Ошибка: ' + e.message); }
-}
-
-async function confirmEmail(){
-  if(!state.user?.email){ alert('Сначала войдите в аккаунт'); return; }
-  try{
-    const r = await fetch('/api/auth', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'send_email_confirmation', email: state.user.email})
-    });
-    const d = await r.json();
-    if(d.success){
-      const code = prompt(d.message + '\n\nВведите код из письма:');
-      if(code){
-        const verify = await fetch('/api/auth', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'verify_register', email: 'confirm_' + state.user.email, code: code})
-        });
-        const vd = await verify.json();
-        if(vd.success){
-          showModal('<h3>✅ Email подтверждён!</h3><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
-        } else {
-          alert('Неверный код');
-        }
-      }
-    } else {
-      alert(d.error || 'Ошибка');
-    }
-  }catch(e){ alert('Ошибка: ' + e.message); }
-}
-
-function validateNickname(input){
-  input.value = input.value.replace(/[^a-zA-Z0-9_]/g, '');
-}
-
-// ============ АВТОРИЗАЦИЯ ============
-async function doLogin(){
-  const login = document.getElementById('loginLogin').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const errorEl = document.getElementById('loginError');
-  errorEl.style.display = 'none';
-  if(!login || !pass){ errorEl.textContent = 'Заполните все поля'; errorEl.style.display = 'block'; return; }
-  try{
-    const r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'login', login, password:pass})});
-    const d = await r.json();
+// ============ GOOGLE OAUTH ============
+function handleGoogleSignIn(response){
+  // Декодируем JWT токен от Google
+  const payload = decodeJwtResponse(response.credential);
+  
+  // Отправляем на сервер
+  fetch('/api/auth/google', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      google_id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      picture: payload.picture,
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
     if(d.success){
       state.user = d.user;
       localStorage.setItem('user', JSON.stringify(d.user));
@@ -569,61 +493,51 @@ async function doLogin(){
       showScreen('menu');
       showModal('<h3>👋 Добро пожаловать, ' + esc(d.user.nickname) + '!</h3><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
     } else {
-      errorEl.textContent = d.error || 'Ошибка входа';
-      errorEl.style.display = 'block';
+      alert('Ошибка: ' + (d.error || 'Неизвестная ошибка'));
     }
-  }catch(e){ errorEl.textContent = 'Ошибка: ' + e.message; errorEl.style.display = 'block'; }
+  })
+  .catch(e => alert('Ошибка: ' + e.message));
 }
 
-async function sendCode(){
-  const email = document.getElementById('regEmail').value.trim();
-  const nick = document.getElementById('regNick').value.trim();
-  const pass = document.getElementById('regPass').value;
-  const pass2 = document.getElementById('regPass2').value;
-  const errorEl = document.getElementById('regError');
-  errorEl.style.display = 'none';
-  if(!email || !nick || !pass || !pass2){ errorEl.textContent = 'Заполните все поля'; errorEl.style.display = 'block'; return; }
-  if(!/^[a-zA-Z0-9_]+$/.test(nick)){ errorEl.textContent = 'Никнейм: только английские буквы, цифры и _'; errorEl.style.display = 'block'; return; }
-  if(nick.length < 3 || nick.length > 20){ errorEl.textContent = 'Никнейм: 3-20 символов'; errorEl.style.display = 'block'; return; }
-  if(pass !== pass2){ errorEl.textContent = 'Пароли не совпадают'; errorEl.style.display = 'block'; return; }
-  if(pass.length < 6){ errorEl.textContent = 'Пароль минимум 6 символов'; errorEl.style.display = 'block'; return; }
-  try{
-    const r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'send_code', email, nickname:nick, password:pass})});
-    const d = await r.json();
-    if(d.success){
-      tempCode = d.code;
-      tempRegData = {email, nickname:nick, password:pass};
-      document.getElementById('codeSection').style.display = 'block';
-      document.getElementById('confirmEmail').textContent = d.confirm_email;
-      showModal(`<h3>📧 Код отправлен</h3><p>Письмо с адреса:<br><b>${d.confirm_email}</b></p><p style="color:var(--c4);font-size:18px;font-weight:bold;margin-top:10px;">Код: ${d.code}</p><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`);
-    } else {
-      errorEl.textContent = d.error || 'Ошибка';
-      errorEl.style.display = 'block';
-    }
-  }catch(e){ errorEl.textContent = 'Ошибка: ' + e.message; errorEl.style.display = 'block'; }
+function decodeJwtResponse(token){
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+  return JSON.parse(jsonPayload);
 }
 
-async function confirmRegister(){
-  const code = document.getElementById('regCode').value.trim();
-  const errorEl = document.getElementById('regError');
-  if(code !== String(tempCode)){ errorEl.textContent = 'Неверный код'; errorEl.style.display = 'block'; return; }
+// ============ СМЕНА НИКНЕЙМА ============
+async function changeNickname(){
+  const newNick = document.getElementById('setNick').value.trim();
+  if(!/^[a-zA-Z0-9_]+$/.test(newNick)){ alert('Только английские буквы, цифры и _'); return; }
+  if(newNick.length < 3 || newNick.length > 20){ alert('3-20 символов'); return; }
+  if(newNick === state.user.nickname){ alert('Это ваш текущий никнейм'); return; }
+  
   try{
-    const r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'verify_register', email:tempRegData.email, code})});
+    const r = await fetch('/api/auth/change_nickname', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({google_id: state.user.google_id, nickname: newNick})
+    });
     const d = await r.json();
     if(d.success){
-      state.user = d.user;
-      localStorage.setItem('user', JSON.stringify(d.user));
+      state.user.nickname = d.nickname;
+      localStorage.setItem('user', JSON.stringify(state.user));
       updateUserPanels();
-      showScreen('menu');
-      showModal('<h3>🎉 Регистрация успешна!</h3><p>Добро пожаловать, ' + esc(d.user.nickname) + '!</p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
+      showModal('<h3>✅ Никнейм изменён!</h3><p>Новый: <b>' + esc(d.nickname) + '</b></p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
     } else {
-      errorEl.textContent = d.error || 'Ошибка';
-      errorEl.style.display = 'block';
+      alert(d.error || 'Ошибка');
     }
-  }catch(e){ errorEl.textContent = 'Ошибка: ' + e.message; errorEl.style.display = 'block'; }
+  }catch(e){ alert('Ошибка: ' + e.message); }
 }
 
 function logout(){
+  // Выход из Google аккаунта
+  if(google && google.accounts && google.accounts.id){
+    google.accounts.id.disableAutoSelect();
+  }
   state.user = null;
   localStorage.removeItem('user');
   updateUserPanels();
@@ -673,6 +587,7 @@ function switchMode(m){
 
 function closeChat(){ document.getElementById('chatFull').classList.remove('open'); }
 
+// Оформление чата (ТОЛЬКО CSS, не влияет на стиль ответов)
 function updateContext(){
   chatContext.theme = document.getElementById('ctxTheme')?.value || '';
   const chatFull = document.getElementById('chatFull');
@@ -693,7 +608,7 @@ async function sendMsg(){
   try{
     const r = await fetch('/api/chat', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:msg, mode:state.chatMode, subscription: state.subscription, history:state.chatHistory, context:chatContext})
+      body:JSON.stringify({message:msg, mode:state.chatMode, subscription: state.subscription, history:state.chatHistory})
     });
     const d = await r.json();
     const t = document.getElementById('typing');
@@ -714,9 +629,7 @@ async function sendMsg(){
 
 function checkSubLevel(required){
   const levels = {'free':0, 'plus':1, 'плюс':1, 'premium':2, 'премиум':2, 'vip':3, 'вип':3};
-  const current = levels[state.subscription.toLowerCase()] || 0;
-  const needed = levels[required] || 0;
-  return current >= needed;
+  return (levels[state.subscription.toLowerCase()] || 0) >= (levels[required] || 0);
 }
 
 // ============ СБОРКА ============
@@ -766,14 +679,28 @@ function renderBuild(d){
   const box = document.getElementById('resBox');
   let h = `<div class="res-head"><h2>🎉 ${d.type === 'ПК' ? 'Сборка готова' : 'Ноутбук'}</h2></div>`;
   if(d.reasoning) h += `<div class="ai-thinking"><b>💡 ИИ объясняет:</b><br>${esc(d.reasoning)}</div>`;
-  const hasSub = checkSubLevel('plus');
+  const hasCompareSub = checkSubLevel('premium');
   h += '<div class="comp-list">';
   d.components.forEach(c => {
-    const btn = hasSub 
-      ? `<button class="btn-compare" onclick="comparePrices('${esc(c.name).replace(/'/g,"\\'")}',${c.price})">💹 Цены в магазинах</button>`
-      : `<button class="btn-compare locked" onclick="needSub('Сравнение цен доступно с подписки Плюс')">🔒 Цены</button>`;
-    const badge = c.price_found ? '<span class="price-found">✓ из магазинов</span>' : '';
-    h += `<div class="comp-it"><div class="comp-ico">${c.icon}</div><div class="comp-info"><div class="comp-lbl">${c.label} ${badge}</div><div class="comp-nm">${esc(c.name)}</div><div class="comp-shops">${btn}</div></div><div class="comp-pr">${c.price>0?fmtP(c.price):'—'}</div></div>`;
+    let shops = '';
+    if(c.shops){
+      for(const [s,u] of Object.entries(c.shops)){
+        shops += `<a href="${u}" target="_blank" class="shop-lnk">${s}</a>`;
+      }
+    }
+    const btn = hasCompareSub 
+      ? `<button class="btn-compare" onclick="comparePrices('${esc(c.name).replace(/'/g,"\\'")}',${c.price})">💹 Сравнить цены</button>`
+      : `<button class="btn-compare locked" onclick="needSub('Сравнение цен доступно с подписки Премиум или ВИП')">🔒 Сравнить</button>`;
+    const badge = c.price_found ? '<span class="price-found">✓ реальная цена</span>' : '';
+    h += `<div class="comp-it">
+      <div class="comp-ico">${c.icon}</div>
+      <div class="comp-info">
+        <div class="comp-lbl">${c.label} ${badge}</div>
+        <div class="comp-nm">${esc(c.name)}</div>
+        <div class="comp-shops">🛒 ${shops}${btn}</div>
+      </div>
+      <div class="comp-pr">${c.price>0?fmtP(c.price):'—'}</div>
+    </div>`;
   });
   h += '</div>';
   h += `<div class="total-box"><div class="tot-lbl">Итого</div><div class="tot-pr">${fmtP(d.total_price)}</div></div>`;
@@ -784,26 +711,38 @@ function renderBuild(d){
 }
 
 async function comparePrices(name, price){
-  if(!checkSubLevel('plus')){ needSub('Сравнение цен доступно с подписки Плюс'); return; }
-  document.getElementById('modalBody').innerHTML = '<div class="spinner" style="margin:20px auto;"></div><p>🔍 Парсим магазины...</p><p style="color:var(--dim);font-size:12px;">10-30 секунд</p>';
+  if(!checkSubLevel('premium')){
+    needSub('Сравнение цен доступно с подписки Премиум или ВИП');
+    return;
+  }
+  document.getElementById('modalBody').innerHTML = '<div class="spinner" style="margin:20px auto;"></div><p>🔍 Ищем цены в магазинах...</p><p style="color:var(--dim);font-size:12px;">10-30 секунд</p>';
   document.getElementById('modal').style.display = 'flex';
   try{
     const r = await fetch('/api/compare', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({component:name, base_price:price, subscription:state.subscription})});
     const d = await r.json();
-    if(d.error){ document.getElementById('modalBody').innerHTML = `<h3>🔒 ${d.error}</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('sub')">Оформить</button>`; return; }
+    if(d.error){ 
+      document.getElementById('modalBody').innerHTML = `<h3>🔒 ${d.error}</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('sub')">Оформить</button>`; 
+      return; 
+    }
     let rows = '';
     if(d.prices && d.prices.length > 0){
       d.prices.forEach((p, i) => {
         rows += `<div class="price-row ${i===0?'best':''}">
-          <div><span class="shop">${esc(p.shop)} ${i===0?'⭐ Лучшая цена':''}</span>
-          <a href="${p.url}" target="_blank" class="shop-lnk">→ Открыть магазин</a><br><small>${esc(p.note || '')}</small></div>
-          <span class="pr">${fmtP(p.price)}</span></div>`;
+          <div>
+            <span class="shop">${esc(p.shop)} ${i===0?'⭐ Лучшая цена':''}</span>
+            <a href="${p.url}" target="_blank" class="shop-lnk">→ Открыть магазин</a>
+            <br><small>${esc(p.note || '')}</small>
+          </div>
+          <span class="pr">${fmtP(p.price)}</span>
+        </div>`;
       });
     } else {
       rows = '<p style="text-align:center;color:var(--dim);">Цены не найдены.</p>';
     }
     document.getElementById('modalBody').innerHTML = `<h3>💹 ${esc(name)}</h3><p>Реальные цены из магазинов:</p><div class="prices-list">${rows}</div><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`;
-  }catch(e){ document.getElementById('modalBody').innerHTML = '<p>Ошибка поиска</p>'; }
+  }catch(e){ 
+    document.getElementById('modalBody').innerHTML = '<p>Ошибка поиска</p>'; 
+  }
 }
 
 // ============ СБОРКА ПОД КЛЮЧ ============
@@ -861,9 +800,8 @@ function buySub(plan, period, price, days){
     state.subExpiry = -1;
     localStorage.setItem('subExpiry', '-1');
   } else {
-    const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
-    state.subExpiry = expiry;
-    localStorage.setItem('subExpiry', String(expiry));
+    state.subExpiry = Date.now() + days * 24 * 60 * 60 * 1000;
+    localStorage.setItem('subExpiry', String(state.subExpiry));
   }
   state.buildsUsed = 0;
   localStorage.setItem('buildsUsed', '0');
