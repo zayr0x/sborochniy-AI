@@ -11,9 +11,23 @@
 
 <div class="bg-grid"></div>
 
-<div class="sub-badge sub-vip" id="subBadge">
-  <span class="badge-icon">💎</span>
-  <span class="badge-text">VIP</span>
+<!-- BADGE С ПОДПИСКОЙ (в нижнем правом углу, с точным таймером) -->
+<div class="sub-badge sub-free" id="subBadge">
+  <span class="badge-icon">🆓</span>
+  <div class="badge-info">
+    <span class="badge-text">Free</span>
+    <span class="badge-timer" id="badgeTimer"></span>
+  </div>
+</div>
+
+<!-- SPLASH -->
+<div id="splash" class="splash">
+  <div class="splash-content">
+    <div class="splash-icon" id="splashIcon">🤖</div>
+    <h2 class="splash-title" id="splashTitle">Загрузка</h2>
+    <p class="splash-text" id="splashText">Подождите...</p>
+    <div class="splash-loader"><div class="splash-bar"></div></div>
+  </div>
 </div>
 
 <!-- СТАРТ -->
@@ -21,8 +35,13 @@
   <div class="start-content">
     <div class="logo-big">🖥️</div>
     <h1 class="title-main">КОМПЬЮТЕРНЫЙ AI</h1>
-    <p class="title-sub">ИИ-агент думает сам и ищет цены в интернете!</p>
+    <p class="title-sub">ИИ-агент думает сам и ищет цены в реальных магазинах</p>
     <button class="btn-start" onclick="showScreen('menu')">НАЧАТЬ РАБОТУ <span>→</span></button>
+    <div class="start-links">
+      <button class="btn-ghost" onclick="showScreen('login')">👤 Войти</button>
+      <button class="btn-ghost" onclick="showScreen('register')">✨ Регистрация</button>
+      <a href="https://t.me/sborochniy_AI" target="_blank" class="btn-ghost">📱 Telegram</a>
+    </div>
   </div>
 </div>
 
@@ -32,18 +51,113 @@
     <div class="menu-header">
       <button class="btn-back" onclick="showScreen('start')">← Назад</button>
       <h1 class="menu-title">🖥️ КОМПЬЮТЕРНЫЙ AI</h1>
-      <div class="builds-counter">🔧 Сборок: <span id="buildsLeft">∞</span></div>
+      <div id="userPanelLoggedOut" class="user-panel">
+        <button class="btn-ghost small" onclick="showScreen('login')">👤 Войти</button>
+        <button class="btn-ghost small" onclick="showScreen('register')">✨ Регистрация</button>
+      </div>
+      <div id="userPanelLoggedIn" class="user-panel" style="display:none;">
+        <span class="user-nick" id="userNick">Гость</span>
+        <button class="btn-ghost small" onclick="showScreen('settings')">⚙️</button>
+        <button class="btn-ghost small" onclick="logout()">🚪</button>
+      </div>
+      <div class="builds-counter" id="buildsCounter">
+        🔧 Сборок осталось: <span id="buildsLeft">3</span>/3
+      </div>
     </div>
-    <div class="menu-grid">
-      <div class="menu-card" onclick="showScreen('build')"><div class="menu-card-icon">🔧</div><h3>Собрать ПК</h3></div>
-      <div class="menu-card" onclick="openChat()"><div class="menu-card-icon">🤖</div><h3>ИИ Ассистент</h3></div>
-      <div class="menu-card" onclick="showScreen('features')"><div class="menu-card-icon">🎁</div><h3>Функции</h3></div>
-      <div class="menu-card" onclick="showScreen('sub')"><div class="menu-card-icon">⭐</div><h3>Подписка</h3></div>
+    <div class="menu-grid-compact">
+      <button class="menu-card-compact" onclick="showScreen('build')">
+        <span class="mcc-icon">🔧</span>
+        <span class="mcc-text">Собрать ПК</span>
+      </button>
+      <button class="menu-card-compact" onclick="openChat()">
+        <span class="mcc-icon">🤖</span>
+        <span class="mcc-text">ИИ Ассистент</span>
+      </button>
+      <button class="menu-card-compact vip-compact" onclick="openTurnkey()">
+        <span class="mcc-icon">🔑</span>
+        <span class="mcc-text">Сборка под ключ</span>
+        <span class="mcc-badge">VIP</span>
+      </button>
+      <button class="menu-card-compact" onclick="showScreen('features')">
+        <span class="mcc-icon">🎁</span>
+        <span class="mcc-text">Функции</span>
+      </button>
+      <button class="menu-card-compact" onclick="showScreen('sub')">
+        <span class="mcc-icon">⭐</span>
+        <span class="mcc-text">Подписка</span>
+      </button>
     </div>
   </div>
 </div>
 
-<!-- СБОРКА -->
+<!-- ВХОД -->
+<div id="screen-login" class="screen">
+  <div class="container auth-container">
+    <button class="btn-back" onclick="showScreen('start')">← Назад</button>
+    <h1 class="menu-title">👤 Вход</h1>
+    <div class="auth-box">
+      <input type="text" id="loginLogin" class="inp" placeholder="Email или никнейм">
+      <input type="password" id="loginPass" class="inp" placeholder="Пароль">
+      <div id="loginError" class="auth-error" style="display:none;"></div>
+      <button class="btn-build" onclick="doLogin()">ВОЙТИ</button>
+      <p class="auth-switch">Нет аккаунта? <a onclick="showScreen('register')">Зарегистрироваться</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- РЕГИСТРАЦИЯ -->
+<div id="screen-register" class="screen">
+  <div class="container auth-container">
+    <button class="btn-back" onclick="showScreen('start')">← Назад</button>
+    <h1 class="menu-title">✨ Регистрация</h1>
+    <div class="auth-box">
+      <input type="email" id="regEmail" class="inp" placeholder="Email">
+      <input type="text" id="regNick" class="inp" placeholder="Никнейм (a-z, 0-9, _)" oninput="validateNickname(this)">
+      <input type="password" id="regPass" class="inp" placeholder="Пароль (минимум 6 символов)">
+      <input type="password" id="regPass2" class="inp" placeholder="Повторите пароль">
+      <div id="regError" class="auth-error" style="display:none;"></div>
+      <button class="btn-build" onclick="sendCode()">ОТПРАВИТЬ КОД</button>
+      <div id="codeSection" style="display:none;">
+        <p class="auth-info">📧 Код отправлен с <b id="confirmEmail"></b></p>
+        <input type="text" id="regCode" class="inp" placeholder="6-значный код" maxlength="6">
+        <button class="btn-build" onclick="confirmRegister()">ПОДТВЕРДИТЬ</button>
+      </div>
+      <p class="auth-switch">Уже есть аккаунт? <a onclick="showScreen('login')">Войти</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- НАСТРОЙКИ -->
+<div id="screen-settings" class="screen">
+  <div class="container">
+    <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
+    <h1 class="menu-title">⚙️ Настройки</h1>
+    <div class="settings-box">
+      <div class="settings-row">
+        <label>👤 Никнейм</label>
+        <div class="settings-inline">
+          <input type="text" id="setNick" class="inp" oninput="validateNickname(this)" placeholder="Введите новый никнейм">
+          <button class="btn-save" onclick="changeNickname()">Сохранить</button>
+        </div>
+        <div class="settings-hint">Только английские буквы, цифры и _ (3-20 символов)</div>
+      </div>
+      <div class="settings-row">
+        <label>🎨 Тема оформления</label>
+        <select id="setTheme" class="inp" onchange="applyTheme()">
+          <option value="dark">🌙 Тёмная</option>
+          <option value="light">☀️ Светлая</option>
+        </select>
+      </div>
+      <div class="settings-row">
+        <label>📧 Email</label>
+        <input type="email" id="setEmail" class="inp" readonly>
+        <button class="btn-save" style="margin-top:10px;" onclick="confirmEmail()">Подтвердить email</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- СБОРКА ПК -->
 <div id="screen-build" class="screen">
   <div class="container">
     <div class="menu-header">
@@ -51,8 +165,7 @@
       <h1 class="menu-title">🔧 Сборка ПК</h1>
     </div>
     <div class="build-form">
-      <div class="form-sec">
-        <label class="sec-label">🖥️ Устройство</label>
+      <div class="form-sec"><label class="sec-label">🖥️ Устройство</label>
         <div class="opt-row">
           <button class="opt active" data-g="device" data-v="pc" onclick="selOpt(this)">🖥️ ПК</button>
           <button class="opt" data-g="device" data-v="laptop" onclick="selOpt(this)">💻 Ноутбук</button>
@@ -62,8 +175,7 @@
         <label class="sec-label">💰 Бюджет: <span id="bVal" class="b-val">100 000 ₽</span></label>
         <input type="range" id="bSlider" min="30000" max="500000" step="5000" value="100000" oninput="updBudget(this.value)">
       </div>
-      <div class="form-sec">
-        <label class="sec-label">🎯 Назначение</label>
+      <div class="form-sec"><label class="sec-label">🎯 Назначение</label>
         <div class="opt-row">
           <button class="opt active" data-g="purpose" data-v="gaming" onclick="selOpt(this)">🎮 Игры</button>
           <button class="opt" data-g="purpose" data-v="programming" onclick="selOpt(this)">⌨️ Код</button>
@@ -72,8 +184,7 @@
           <button class="opt" data-g="purpose" data-v="work" onclick="selOpt(this)">💼 Работа</button>
         </div>
       </div>
-      <div class="form-sec">
-        <label class="sec-label">🎨 Цвет</label>
+      <div class="form-sec"><label class="sec-label">🎨 Цвет</label>
         <div class="opt-row">
           <button class="opt active" data-g="color" data-v="black" onclick="selOpt(this)">⚫ Чёрный</button>
           <button class="opt" data-g="color" data-v="white" onclick="selOpt(this)">⚪ Белый</button>
@@ -81,8 +192,7 @@
           <button class="opt" data-g="color" data-v="rgb" onclick="selOpt(this)">🌈 RGB</button>
         </div>
       </div>
-      <div class="form-sec">
-        <label class="sec-label">✨ Стиль</label>
+      <div class="form-sec"><label class="sec-label">✨ Стиль</label>
         <div class="opt-row">
           <button class="opt active" data-g="style" data-v="minimal" onclick="selOpt(this)">🖤 Минимализм</button>
           <button class="opt" data-g="style" data-v="rgb" onclick="selOpt(this)">🌈 RGB</button>
@@ -91,18 +201,30 @@
           <button class="opt" data-g="style" data-v="retro" onclick="selOpt(this)">🎞️ Ретро</button>
         </div>
       </div>
-      <div class="form-sec">
-        <label class="sec-label">🔍 Хочу конкретную модель (опционально)</label>
-        <input type="text" id="cCpu" class="inp" placeholder="Процессор, например: AMD Ryzen 7 7800X3D">
-        <input type="text" id="cGpu" class="inp" placeholder="Видеокарта, например: RTX 4070 Super" style="margin-top:10px;">
+      <div class="form-sec"><label class="sec-label">🔍 Конкретные модели (опционально)</label>
+        <input type="text" id="cCpu" class="inp" placeholder="Процессор">
+        <input type="text" id="cGpu" class="inp" placeholder="Видеокарта" style="margin-top:10px;">
       </div>
-      <div class="form-sec">
-        <label class="sec-label">🎮 Любимые игры и пожелания</label>
-        <textarea id="cWishes" class="inp wishes-area" placeholder="Играю в Cyberpunk 2077, хочу тихий ПК, нужен Wi-Fi..." rows="4"></textarea>
+      <div class="form-sec"><label class="sec-label">🎮 Любимые игры и пожелания</label>
+        <textarea id="cWishes" class="inp wishes-area" placeholder="Играю в Cyberpunk 2077, хочу тихий ПК..." rows="4"></textarea>
       </div>
       <button class="btn-build" onclick="doBuild()">⚡ ИИ, СОБЕРИ СИСТЕМУ</button>
     </div>
     <div id="resBox" class="res-box" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- СБОРКА ПОД КЛЮЧ -->
+<div id="screen-turnkey" class="screen">
+  <div class="container">
+    <div class="menu-header">
+      <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
+      <h1 class="menu-title">🔑 Сборка под ключ</h1>
+    </div>
+    <div class="turnkey-box">
+      <div class="turnkey-progress"><div class="progress-bar" id="turnkeyProgress"></div></div>
+      <div id="turnkeyContent"></div>
+    </div>
   </div>
 </div>
 
@@ -111,21 +233,30 @@
   <div class="container">
     <div class="menu-header">
       <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
-      <h1 class="menu-title">🎁 Функции подписки</h1>
+      <h1 class="menu-title">🎁 Функции подписок</h1>
     </div>
     <div class="features-full">
-      <div class="feature-section"><div class="feature-head"><span class="feature-tag plus">⭐ Плюс</span></div><div class="feature-list">
-        <button class="feature-btn" onclick="useFeature('Безлимит')"><span class="fb-icon">🔓</span><div><b>Безлимит сборок</b></div></button>
-        <button class="feature-btn" onclick="useFeature('Сравнение цен')"><span class="fb-icon">💹</span><div><b>Сравнение цен</b></div></button>
-      </div></div>
-      <div class="feature-section premium-section"><div class="feature-head"><span class="feature-tag premium">👑 Премиум</span></div><div class="feature-list">
-        <button class="feature-btn" onclick="openChatPro()"><span class="fb-icon">🧠</span><div><b>ИИ PRO (GPT-4o)</b></div></button>
-        <button class="feature-btn" onclick="useFeature('Поддержка')"><span class="fb-icon">⚡</span><div><b>Приоритетная поддержка</b></div></button>
-      </div></div>
-      <div class="feature-section vip-section"><div class="feature-head"><span class="feature-tag vip">💎 VIP</span></div><div class="feature-list">
-        <button class="feature-btn" onclick="openChatManager()"><span class="fb-icon">👔</span><div><b>Менеджер 24/7</b></div></button>
-        <button class="feature-btn" onclick="useFeature('Сборка под ключ')"><span class="fb-icon">🔧</span><div><b>Сборка под ключ</b></div></button>
-      </div></div>
+      <div class="feature-section">
+        <div class="feature-head"><span class="feature-tag plus">⭐ Плюс</span></div>
+        <div class="feature-list">
+          <button class="feature-btn" data-req="plus" onclick="useFeature('Безлимит сборок')"><span class="fb-icon">🔓</span><div><b>Безлимит сборок</b><p>Без ограничений</p></div></button>
+          <button class="feature-btn" data-req="plus" onclick="useFeature('Сравнение цен')"><span class="fb-icon">💹</span><div><b>Сравнение цен</b><p>DNS, Ситилинк, Ozon, Я.Маркет</p></div></button>
+          <button class="feature-btn" data-req="plus" onclick="openChat()"><span class="fb-icon">🤖</span><div><b>ИИ Ассистент</b><p>Короткие ответы</p></div></button>
+        </div>
+      </div>
+      <div class="feature-section premium-section">
+        <div class="feature-head"><span class="feature-tag premium">👑 Премиум</span></div>
+        <div class="feature-list">
+          <button class="feature-btn" data-req="premium" onclick="useFeature('Ранний доступ')"><span class="fb-icon">🚀</span><div><b>Ранний доступ</b><p>Новые функции первыми</p></div></button>
+        </div>
+      </div>
+      <div class="feature-section vip-section">
+        <div class="feature-head"><span class="feature-tag vip">💎 ВИП</span></div>
+        <div class="feature-list">
+          <button class="feature-btn" data-req="vip" onclick="openChatManager()"><span class="fb-icon">👔</span><div><b>ИИ Менеджер 24/7</b><p>Личный эксперт</p></div></button>
+          <button class="feature-btn" data-req="vip" onclick="openTurnkey()"><span class="fb-icon">🔑</span><div><b>Сборка под ключ</b><p>Закажем и соберём</p></div></button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -139,49 +270,51 @@
     </div>
     <div class="plans">
       <div class="plan"><div class="plan-ico">⭐</div><h3>Плюс</h3>
+        <ul><li>✅ Безлимит сборок</li><li>✅ Сравнение цен</li><li>✅ ИИ Ассистент</li></ul>
         <div class="prices">
-          <button onclick="buySub('Плюс','1 мес',49)">1 мес — <b>49₽</b></button>
-          <button onclick="buySub('Плюс','6 мес',250)">6 мес — <b>250₽</b></button>
-          <button class="best" onclick="buySub('Плюс','Навсегда',990)">Навсегда — <b>990₽</b></button>
+          <button onclick="buySub('Плюс','1 мес',49,30)">1 мес — <b>49₽</b></button>
+          <button onclick="buySub('Плюс','6 мес',250,180)"><span class="disc">-15%</span> 6 мес — <b>250₽</b></button>
+          <button onclick="buySub('Плюс','1 год',410,365)"><span class="disc">-30%</span> 1 год — <b>410₽</b></button>
+          <button class="best" onclick="buySub('Плюс','Навсегда',990,-1)"><span class="disc">-50%</span> Навсегда — <b>990₽</b></button>
         </div>
       </div>
       <div class="plan feat"><div class="badge">🔥 Лучший</div><div class="plan-ico">👑</div><h3>Премиум</h3>
+        <ul><li>✅ Всё из "Плюс"</li><li>✅ Ранний доступ к фичам</li></ul>
         <div class="prices">
-          <button onclick="buySub('Премиум','1 мес',149)">1 мес — <b>149₽</b></button>
-          <button onclick="buySub('Премиум','6 мес',760)">6 мес — <b>760₽</b></button>
-          <button class="best" onclick="buySub('Премиум','Навсегда',2990)">Навсегда — <b>2990₽</b></button>
+          <button onclick="buySub('Премиум','1 мес',149,30)">1 мес — <b>149₽</b></button>
+          <button onclick="buySub('Премиум','6 мес',760,180)"><span class="disc">-15%</span> 6 мес — <b>760₽</b></button>
+          <button onclick="buySub('Премиум','1 год',1250,365)"><span class="disc">-30%</span> 1 год — <b>1250₽</b></button>
+          <button class="best" onclick="buySub('Премиум','Навсегда',2990,-1)"><span class="disc">-50%</span> Навсегда — <b>2990₽</b></button>
         </div>
       </div>
       <div class="plan vip-plan"><div class="badge vip">💎 VIP</div><div class="plan-ico">💎</div><h3>ВИП</h3>
+        <ul><li>✅ Всё из "Премиум"</li><li>✅ ИИ Менеджер 24/7</li><li>✅ Сборка под ключ</li></ul>
         <div class="prices">
-          <button onclick="buySub('ВИП','1 мес',299)">1 мес — <b>299₽</b></button>
-          <button onclick="buySub('ВИП','6 мес',1525)">6 мес — <b>1525₽</b></button>
-          <button class="best" onclick="buySub('ВИП','Навсегда',5990)">Навсегда — <b>5990₽</b></button>
+          <button onclick="buySub('ВИП','1 мес',299,30)">1 мес — <b>299₽</b></button>
+          <button onclick="buySub('ВИП','6 мес',1525,180)"><span class="disc">-15%</span> 6 мес — <b>1525₽</b></button>
+          <button onclick="buySub('ВИП','1 год',2510,365)"><span class="disc">-30%</span> 1 год — <b>2510₽</b></button>
+          <button class="best" onclick="buySub('ВИП','Навсегда',5990,-1)"><span class="disc">-50%</span> Навсегда — <b>5990₽</b></button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ЧАТ (только ТЕМА, без цвета и задачи) -->
+<!-- ЧАТ -->
 <div id="chatFull" class="chat-full">
   <div class="chat-top">
     <div class="chat-left">
-      <h2>🤖 ИИ Ассистент</h2>
+      <h2 id="chatTitle">🤖 ИИ Ассистент</h2>
       <div class="mode-sw">
-        <button id="mFree" class="mode active" onclick="setMode('free')">🆓 Обычный</button>
-        <button id="mPro" class="mode" onclick="setMode('pro')">👑 PRO</button>
-        <button id="mManager" class="mode" onclick="setMode('manager')">👔 Менеджер</button>
-        <button id="mSupport" class="mode" onclick="setMode('support')">⚡ Поддержка</button>
+        <button id="mFree" class="mode active" onclick="switchMode('free')">🤖 ИИ Ассистент</button>
+        <button id="mManager" class="mode" onclick="switchMode('manager')">👔 ИИ Менеджер</button>
       </div>
     </div>
     <button class="btn-close" onclick="closeChat()">✕ Закрыть</button>
   </div>
-
-  <!-- ТОЛЬКО ТЕМА (цвет и задача убраны!) -->
   <div class="chat-context">
     <div class="ctx-row">
-      <label>🎨 Стиль ответа:</label>
+      <label>🎨 Стиль чата:</label>
       <select id="ctxTheme" onchange="updateContext()">
         <option value="">Обычный</option>
         <option value="minimal">Минимализм</option>
@@ -192,19 +325,9 @@
       </select>
     </div>
   </div>
-
   <div id="chatMsgs" class="chat-msgs">
-    <div class="msg bot">
-      <b>Привет! 👋</b><br>
-      Я эксперт по ПК с доступом в интернет.<br><br>
-      🆓 <b>Обычный</b> — работает<br>
-      👑 <b>PRO</b> — в разработке<br>
-      👔 <b>Менеджер</b> — в разработке<br>
-      ⚡ <b>Поддержка</b> — в разработке<br><br>
-      Выбери стиль ответа сверху!
-    </div>
+    <div class="msg bot"><b>Привет! 👋</b><br>Я эксперт по ПК с доступом в интернет.</div>
   </div>
-
   <div class="chat-inp-area">
     <input type="text" id="chatInp" placeholder="Задай вопрос о ПК..." onkeydown="if(event.key==='Enter')sendMsg()">
     <button onclick="sendMsg()">➤</button>
@@ -222,20 +345,38 @@
 <!-- ЗАГРУЗКА -->
 <div id="loader" class="loader">
   <div class="spinner"></div>
-  <p id="loaderText">🧠 ИИ ищет цены в интернете...</p>
+  <p id="loaderText">🧠 ИИ думает и ищет цены в магазинах...</p>
+  <p id="loaderSubText" class="loader-sub">Парсинг DNS, Ситилинк, Ozon, Я.Маркет</p>
 </div>
 
 <script>
+// ============ STATE ============
 const state = {
   device:'pc', purpose:'gaming', color:'black', style:'minimal',
   budget:100000, custom_cpu:'', custom_gpu:'', custom_wishes:'',
   buildsUsed: parseInt(localStorage.getItem('buildsUsed') || '0'),
-  subscription: localStorage.getItem('sub') || 'vip',
-  chatMode: 'free',
-  chatHistory: []
+  subscription: localStorage.getItem('sub') || 'free',
+  subExpiry: parseInt(localStorage.getItem('subExpiry') || '0'),
+  chatMode: 'free', chatHistory: [],
+  user: JSON.parse(localStorage.getItem('user') || 'null'),
+  settings: JSON.parse(localStorage.getItem('settings') || '{"lang":"ru","theme":"dark"}'),
 };
 
-let chatContext = { theme: '' };  // ТОЛЬКО тема!
+let chatContext = { theme: '' };
+let tempCode = null;
+let tempRegData = null;
+let turnkeyStep = 1;
+let turnkeyAnswers = {};
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  applyTheme();
+  updateSubBadge();
+  updateUserPanels();
+  updateBuildsCounter();
+  loadSettings();
+  startTimerUpdate();
+});
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -243,6 +384,342 @@ function showScreen(id){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+// ============ ПОДПИСКА + ТОЧНЫЙ ТАЙМЕР ============
+function updateSubBadge(){
+  const badge = document.getElementById('subBadge');
+  if(!badge) return;
+  const sub = state.subscription.toLowerCase();
+  const map = {
+    'vip':{icon:'💎',text:'VIP',cls:'sub-vip'},
+    'вип':{icon:'💎',text:'VIP',cls:'sub-vip'},
+    'премиум':{icon:'👑',text:'Премиум',cls:'sub-premium'},
+    'плюс':{icon:'⭐',text:'Плюс',cls:'sub-plus'},
+    'free':{icon:'🆓',text:'Free',cls:'sub-free'}
+  };
+  const m = map[sub] || map['free'];
+  badge.querySelector('.badge-icon').textContent = m.icon;
+  badge.querySelector('.badge-text').textContent = m.text;
+  badge.className = 'sub-badge ' + m.cls;
+  updateSubTimer();
+}
+
+function updateSubTimer(){
+  const timer = document.getElementById('badgeTimer');
+  if(!timer) return;
+  
+  if(state.subscription === 'free'){
+    timer.textContent = '';
+    return;
+  }
+  
+  if(state.subExpiry === -1){
+    timer.textContent = '∞ навсегда';
+    return;
+  }
+  
+  const now = Date.now();
+  const expiry = state.subExpiry;
+  
+  if(expiry <= now){
+    state.subscription = 'free';
+    localStorage.setItem('sub', 'free');
+    localStorage.removeItem('subExpiry');
+    updateSubBadge();
+    updateBuildsCounter();
+    return;
+  }
+  
+  const diff = expiry - now;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  
+  // Формат: "2д 14ч 35м 12с"
+  if(days > 0){
+    timer.textContent = `${days}д ${hours}ч ${minutes}м ${seconds}с`;
+  } else if(hours > 0){
+    timer.textContent = `${hours}ч ${minutes}м ${seconds}с`;
+  } else if(minutes > 0){
+    timer.textContent = `${minutes}м ${seconds}с`;
+  } else {
+    timer.textContent = `${seconds}с`;
+  }
+}
+
+function startTimerUpdate(){
+  updateSubTimer();
+  setInterval(updateSubTimer, 1000); // каждую секунду
+}
+
+function updateUserPanels(){
+  const loggedOut = document.getElementById('userPanelLoggedOut');
+  const loggedIn = document.getElementById('userPanelLoggedIn');
+  if(state.user){
+    loggedOut.style.display = 'none';
+    loggedIn.style.display = 'flex';
+    document.getElementById('userNick').textContent = '👤 ' + state.user.nickname;
+  } else {
+    loggedOut.style.display = 'flex';
+    loggedIn.style.display = 'none';
+  }
+}
+
+function updateBuildsCounter(){
+  const counter = document.getElementById('buildsCounter');
+  const left = document.getElementById('buildsLeft');
+  if(!counter || !left) return;
+  if(state.subscription !== 'free'){
+    counter.style.display = 'none';
+  } else {
+    counter.style.display = 'inline-block';
+    const remaining = Math.max(0, 3 - state.buildsUsed);
+    left.textContent = remaining;
+  }
+}
+
+function loadSettings(){
+  if(state.settings.theme) document.getElementById('setTheme').value = state.settings.theme;
+  if(state.user){
+    document.getElementById('setNick').value = state.user.nickname || '';
+    document.getElementById('setEmail').value = state.user.email || '';
+  }
+}
+
+function applyTheme(){
+  const theme = document.getElementById('setTheme')?.value || state.settings.theme || 'dark';
+  document.body.classList.remove('theme-dark', 'theme-light');
+  document.body.classList.add('theme-' + theme);
+  state.settings.theme = theme;
+  localStorage.setItem('settings', JSON.stringify(state.settings));
+}
+
+async function changeNickname(){
+  const newNick = document.getElementById('setNick').value.trim();
+  if(!/^[a-zA-Z0-9_]+$/.test(newNick)){ alert('Никнейм: только английские буквы, цифры и _'); return; }
+  if(newNick.length < 3 || newNick.length > 20){ alert('Никнейм: 3-20 символов'); return; }
+  try{
+    const r = await fetch('/api/auth', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'change_nickname', email: state.user?.email || 'guest', nickname: newNick})
+    });
+    const d = await r.json();
+    if(d.success){
+      if(state.user){
+        state.user.nickname = d.nickname;
+        localStorage.setItem('user', JSON.stringify(state.user));
+        updateUserPanels();
+      }
+      showModal('<h3>✅ Никнейм изменён!</h3><p>Новый: <b>' + esc(d.nickname) + '</b></p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
+    } else {
+      alert(d.error || 'Ошибка');
+    }
+  }catch(e){ alert('Ошибка: ' + e.message); }
+}
+
+async function confirmEmail(){
+  if(!state.user?.email){ alert('Сначала войдите в аккаунт'); return; }
+  try{
+    const r = await fetch('/api/auth', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'send_email_confirmation', email: state.user.email})
+    });
+    const d = await r.json();
+    if(d.success){
+      const code = prompt(d.message + '\n\nВведите код из письма:');
+      if(code){
+        const verify = await fetch('/api/auth', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'verify_register', email: 'confirm_' + state.user.email, code: code})
+        });
+        const vd = await verify.json();
+        if(vd.success){
+          showModal('<h3>✅ Email подтверждён!</h3><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
+        } else {
+          alert('Неверный код');
+        }
+      }
+    } else {
+      alert(d.error || 'Ошибка');
+    }
+  }catch(e){ alert('Ошибка: ' + e.message); }
+}
+
+function validateNickname(input){
+  input.value = input.value.replace(/[^a-zA-Z0-9_]/g, '');
+}
+
+// ============ АВТОРИЗАЦИЯ ============
+async function doLogin(){
+  const login = document.getElementById('loginLogin').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errorEl = document.getElementById('loginError');
+  errorEl.style.display = 'none';
+  if(!login || !pass){ errorEl.textContent = 'Заполните все поля'; errorEl.style.display = 'block'; return; }
+  try{
+    const r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'login', login, password:pass})});
+    const d = await r.json();
+    if(d.success){
+      state.user = d.user;
+      localStorage.setItem('user', JSON.stringify(d.user));
+      updateUserPanels();
+      showScreen('menu');
+      showModal('<h3>👋 Добро пожаловать, ' + esc(d.user.nickname) + '!</h3><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
+    } else {
+      errorEl.textContent = d.error || 'Ошибка входа';
+      errorEl.style.display = 'block';
+    }
+  }catch(e){ errorEl.textContent = 'Ошибка: ' + e.message; errorEl.style.display = 'block'; }
+}
+
+async function sendCode(){
+  const email = document.getElementById('regEmail').value.trim();
+  const nick = document.getElementById('regNick').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  const errorEl = document.getElementById('regError');
+  errorEl.style.display = 'none';
+  if(!email || !nick || !pass || !pass2){ errorEl.textContent = 'Заполните все поля'; errorEl.style.display = 'block'; return; }
+  if(!/^[a-zA-Z0-9_]+$/.test(nick)){ errorEl.textContent = 'Никнейм: только английские буквы, цифры и _'; errorEl.style.display = 'block'; return; }
+  if(nick.length < 3 || nick.length > 20){ errorEl.textContent = 'Никнейм: 3-20 символов'; errorEl.style.display = 'block'; return; }
+  if(pass !== pass2){ errorEl.textContent = 'Пароли не совпадают'; errorEl.style.display = 'block'; return; }
+  if(pass.length < 6){ errorEl.textContent = 'Пароль минимум 6 символов'; errorEl.style.display = 'block'; return; }
+  try{
+    const r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'send_code', email, nickname:nick, password:pass})});
+    const d = await r.json();
+    if(d.success){
+      tempCode = d.code;
+      tempRegData = {email, nickname:nick, password:pass};
+      document.getElementById('codeSection').style.display = 'block';
+      document.getElementById('confirmEmail').textContent = d.confirm_email;
+      showModal(`<h3>📧 Код отправлен</h3><p>Письмо с адреса:<br><b>${d.confirm_email}</b></p><p style="color:var(--c4);font-size:18px;font-weight:bold;margin-top:10px;">Код: ${d.code}</p><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`);
+    } else {
+      errorEl.textContent = d.error || 'Ошибка';
+      errorEl.style.display = 'block';
+    }
+  }catch(e){ errorEl.textContent = 'Ошибка: ' + e.message; errorEl.style.display = 'block'; }
+}
+
+async function confirmRegister(){
+  const code = document.getElementById('regCode').value.trim();
+  const errorEl = document.getElementById('regError');
+  if(code !== String(tempCode)){ errorEl.textContent = 'Неверный код'; errorEl.style.display = 'block'; return; }
+  try{
+    const r = await fetch('/api/auth', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'verify_register', email:tempRegData.email, code})});
+    const d = await r.json();
+    if(d.success){
+      state.user = d.user;
+      localStorage.setItem('user', JSON.stringify(d.user));
+      updateUserPanels();
+      showScreen('menu');
+      showModal('<h3>🎉 Регистрация успешна!</h3><p>Добро пожаловать, ' + esc(d.user.nickname) + '!</p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\'">OK</button>');
+    } else {
+      errorEl.textContent = d.error || 'Ошибка';
+      errorEl.style.display = 'block';
+    }
+  }catch(e){ errorEl.textContent = 'Ошибка: ' + e.message; errorEl.style.display = 'block'; }
+}
+
+function logout(){
+  state.user = null;
+  localStorage.removeItem('user');
+  updateUserPanels();
+  showScreen('start');
+}
+
+function showSplash(icon, title, text, callback){
+  const splash = document.getElementById('splash');
+  document.getElementById('splashIcon').textContent = icon;
+  document.getElementById('splashTitle').textContent = title;
+  document.getElementById('splashText').textContent = text;
+  splash.classList.add('active');
+  setTimeout(() => {
+    splash.classList.remove('active');
+    if(callback) callback();
+  }, 3000);
+}
+
+// ============ ЧАТ ============
+function openChat(){
+  showSplash('🤖', 'ИИ Ассистент', 'Поможет со сборкой ПК!', () => {
+    document.getElementById('chatFull').classList.add('open');
+    switchMode('free');
+  });
+}
+
+function openChatManager(){
+  if(!checkSubLevel('vip')){
+    showModal('<h3>🔒 Только для подписки ВИП</h3><p>ИИ Менеджер доступен только с подпиской <b>ВИП</b>.</p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\';showScreen(\'sub\')">Оформить ВИП</button>');
+    return;
+  }
+  showSplash('👔', 'ИИ Менеджер', 'Поможет хоть с чем!', () => {
+    document.getElementById('chatFull').classList.add('open');
+    switchMode('manager');
+  });
+}
+
+function switchMode(m){
+  state.chatMode = m;
+  ['mFree','mManager'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById({'free':'mFree','manager':'mManager'}[m]).classList.add('active');
+  const titles = {'free':'🤖 ИИ Ассистент','manager':'👔 ИИ Менеджер'};
+  document.getElementById('chatTitle').textContent = titles[m];
+  state.chatHistory = [];
+  document.getElementById('chatMsgs').innerHTML = `<div class="msg bot"><b>Режим: ${titles[m]}</b><br>Задайте ваш вопрос!</div>`;
+}
+
+function closeChat(){ document.getElementById('chatFull').classList.remove('open'); }
+
+function updateContext(){
+  chatContext.theme = document.getElementById('ctxTheme')?.value || '';
+  const chatFull = document.getElementById('chatFull');
+  chatFull.classList.remove('theme-minimal','theme-rgb','theme-anime','theme-glass','theme-retro');
+  if(chatContext.theme) chatFull.classList.add('theme-' + chatContext.theme);
+}
+
+async function sendMsg(){
+  const inp = document.getElementById('chatInp');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value = '';
+  const msgs = document.getElementById('chatMsgs');
+  msgs.innerHTML += `<div class="msg user">${esc(msg)}</div>`;
+  msgs.innerHTML += `<div class="msg bot" id="typing">⏳ Думаю...</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  state.chatHistory.push({role:'user', content:msg});
+  try{
+    const r = await fetch('/api/chat', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:msg, mode:state.chatMode, subscription: state.subscription, history:state.chatHistory, context:chatContext})
+    });
+    const d = await r.json();
+    const t = document.getElementById('typing');
+    if(t){
+      t.removeAttribute('id');
+      let badges = '';
+      if(d.used_search) badges += '<span class="search-badge">🔍 Веб-поиск</span>';
+      if(d.locked) badges += '<span class="dev-badge">🔒 Нужна подписка</span>';
+      t.innerHTML = esc(d.response).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>') + badges;
+    }
+    state.chatHistory.push({role:'assistant', content:d.response});
+  }catch(e){
+    const t = document.getElementById('typing');
+    if(t){ t.removeAttribute('id'); t.textContent = '❌ Ошибка: ' + e.message; }
+  }
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function checkSubLevel(required){
+  const levels = {'free':0, 'plus':1, 'плюс':1, 'premium':2, 'премиум':2, 'vip':3, 'вип':3};
+  const current = levels[state.subscription.toLowerCase()] || 0;
+  const needed = levels[required] || 0;
+  return current >= needed;
+}
+
+// ============ СБОРКА ============
 function selOpt(btn){
   document.querySelectorAll(`.opt[data-g="${btn.dataset.g}"]`).forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -257,24 +734,28 @@ function updBudget(v){
 function fmtP(n){ return Number(n).toLocaleString('ru-RU') + ' ₽'; }
 
 async function doBuild(){
+  if(state.subscription === 'free' && state.buildsUsed >= 3){
+    showModal('<h3>⚠️ Лимит сборок исчерпан</h3><p>Бесплатно только 3 сборки.</p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\';showScreen(\'sub\')">Оформить подписку</button>');
+    return;
+  }
   state.custom_cpu = document.getElementById('cCpu')?.value.trim() || '';
   state.custom_gpu = document.getElementById('cGpu')?.value.trim() || '';
   state.custom_wishes = document.getElementById('cWishes')?.value.trim() || '';
-
   document.getElementById('loader').classList.add('active');
-
+  document.getElementById('loaderSubText').textContent = 'Парсинг DNS, Ситилинк, Ozon, Я.Маркет...';
   try {
     const res = await fetch('/api/build', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(state)});
     const data = await res.json();
-    
     setTimeout(() => {
       document.getElementById('loader').classList.remove('active');
-      if(data.error){
-        alert('Ошибка: ' + data.error);
-        return;
-      }
+      if(data.error){ alert('Ошибка: ' + data.error); return; }
       renderBuild(data);
-    }, 1500);
+      if(state.subscription === 'free'){
+        state.buildsUsed++;
+        localStorage.setItem('buildsUsed', state.buildsUsed);
+        updateBuildsCounter();
+      }
+    }, 500);
   } catch(e){
     document.getElementById('loader').classList.remove('active');
     alert('Ошибка: ' + e.message);
@@ -283,103 +764,132 @@ async function doBuild(){
 
 function renderBuild(d){
   const box = document.getElementById('resBox');
-  let h = `<div class="res-head"><h2>🎉 ${d.type === 'ПК' ? 'Сборка' : 'Ноутбук'}</h2></div>`;
-  if(d.reasoning) h += `<div class="ai-thinking"><b>💡 Почему эта сборка:</b><br>${esc(d.reasoning)}</div>`;
-  
+  let h = `<div class="res-head"><h2>🎉 ${d.type === 'ПК' ? 'Сборка готова' : 'Ноутбук'}</h2></div>`;
+  if(d.reasoning) h += `<div class="ai-thinking"><b>💡 ИИ объясняет:</b><br>${esc(d.reasoning)}</div>`;
+  const hasSub = checkSubLevel('plus');
   h += '<div class="comp-list">';
   d.components.forEach(c => {
-    let shops = Object.entries(c.shops).map(([s,u]) => `<a href="${u}" target="_blank" class="shop-lnk">${s}</a>`).join('');
-    const btn = state.subscription !== 'free' 
-      ? `<button class="btn-compare" onclick="comparePrices('${esc(c.name).replace(/'/g,"\\'")}',${c.price})">💹 Цены</button>`
-      : `<button class="btn-compare locked" onclick="needSub()">🔒 Цены</button>`;
-    const badge = c.price_found ? '<span class="price-found">✓ из интернета</span>' : '';
-    h += `<div class="comp-it"><div class="comp-ico">${c.icon}</div><div class="comp-info"><div class="comp-lbl">${c.label} ${badge}</div><div class="comp-nm">${esc(c.name)}</div><div class="comp-shops">🛒 ${shops}${btn}</div></div><div class="comp-pr">${c.price>0?fmtP(c.price):'—'}</div></div>`;
+    const btn = hasSub 
+      ? `<button class="btn-compare" onclick="comparePrices('${esc(c.name).replace(/'/g,"\\'")}',${c.price})">💹 Цены в магазинах</button>`
+      : `<button class="btn-compare locked" onclick="needSub('Сравнение цен доступно с подписки Плюс')">🔒 Цены</button>`;
+    const badge = c.price_found ? '<span class="price-found">✓ из магазинов</span>' : '';
+    h += `<div class="comp-it"><div class="comp-ico">${c.icon}</div><div class="comp-info"><div class="comp-lbl">${c.label} ${badge}</div><div class="comp-nm">${esc(c.name)}</div><div class="comp-shops">${btn}</div></div><div class="comp-pr">${c.price>0?fmtP(c.price):'—'}</div></div>`;
   });
   h += '</div>';
   h += `<div class="total-box"><div class="tot-lbl">Итого</div><div class="tot-pr">${fmtP(d.total_price)}</div></div>`;
   h += `<button class="btn-again" onclick="doBuild()">🔄 Другая сборка</button>`;
-  
   box.innerHTML = h;
   box.style.display = 'block';
   box.scrollIntoView({behavior:'smooth'});
 }
 
 async function comparePrices(name, price){
-  document.getElementById('modalBody').innerHTML = '<div class="spinner" style="margin:20px auto;"></div><p>🔍 Ищем цены...</p>';
+  if(!checkSubLevel('plus')){ needSub('Сравнение цен доступно с подписки Плюс'); return; }
+  document.getElementById('modalBody').innerHTML = '<div class="spinner" style="margin:20px auto;"></div><p>🔍 Парсим магазины...</p><p style="color:var(--dim);font-size:12px;">10-30 секунд</p>';
   document.getElementById('modal').style.display = 'flex';
   try{
     const r = await fetch('/api/compare', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({component:name, base_price:price, subscription:state.subscription})});
     const d = await r.json();
     if(d.error){ document.getElementById('modalBody').innerHTML = `<h3>🔒 ${d.error}</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('sub')">Оформить</button>`; return; }
-    let rows = `<div class="price-row base"><span class="shop">Базовая</span><span class="pr">${fmtP(d.base_price||price)}</span></div>`;
-    d.prices.forEach(p => {
-      rows += `<div class="price-row"><div><span class="shop">${esc(p.shop)}</span> ${p.url?`<a href="${p.url}" target="_blank" class="shop-lnk">→</a>`:''}<br><small>${esc(p.note||'')}</small></div><span class="pr">${fmtP(p.price)}</span></div>`;
-    });
-    document.getElementById('modalBody').innerHTML = `<h3>💹 ${esc(name)}</h3><div class="prices-list">${rows}</div><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`;
-  }catch(e){ document.getElementById('modalBody').innerHTML = '<p>Ошибка</p>'; }
+    let rows = '';
+    if(d.prices && d.prices.length > 0){
+      d.prices.forEach((p, i) => {
+        rows += `<div class="price-row ${i===0?'best':''}">
+          <div><span class="shop">${esc(p.shop)} ${i===0?'⭐ Лучшая цена':''}</span>
+          <a href="${p.url}" target="_blank" class="shop-lnk">→ Открыть магазин</a><br><small>${esc(p.note || '')}</small></div>
+          <span class="pr">${fmtP(p.price)}</span></div>`;
+      });
+    } else {
+      rows = '<p style="text-align:center;color:var(--dim);">Цены не найдены.</p>';
+    }
+    document.getElementById('modalBody').innerHTML = `<h3>💹 ${esc(name)}</h3><p>Реальные цены из магазинов:</p><div class="prices-list">${rows}</div><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`;
+  }catch(e){ document.getElementById('modalBody').innerHTML = '<p>Ошибка поиска</p>'; }
 }
 
-function buySub(plan, period, price){
+// ============ СБОРКА ПОД КЛЮЧ ============
+function openTurnkey(){
+  if(!checkSubLevel('vip')){
+    showModal('<h3>🔒 Только для подписки ВИП</h3><p>Функция "Сборка под ключ" доступна только с подпиской <b>ВИП</b>.</p><button class="btn-modal" onclick="document.getElementById(\'modal\').style.display=\'none\';showScreen(\'sub\')">Оформить ВИП</button>');
+    return;
+  }
+  showScreen('turnkey');
+  turnkeyStep = 1;
+  turnkeyAnswers = {};
+  loadTurnkeyStep();
+}
+
+async function loadTurnkeyStep(){
+  document.getElementById('turnkeyContent').innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+  try{
+    const r = await fetch('/api/turnkey', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({step:turnkeyStep, answers:turnkeyAnswers, subscription:state.subscription})});
+    const d = await r.json();
+    if(d.error){
+      document.getElementById('turnkeyContent').innerHTML = `<div class="turnkey-locked"><h2>🔒 ${d.message.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</h2><button class="btn-build" onclick="showScreen('sub')">Оформить подписку</button></div>`;
+      return;
+    }
+    if(d.done){
+      document.getElementById('turnkeyProgress').style.width = '100%';
+      document.getElementById('turnkeyContent').innerHTML = `<div class="turnkey-final"><h2>🎉 Ваша сборка</h2><div class="turnkey-response">${esc(d.response).replace(/\n/g,'<br>')}</div></div>`;
+      return;
+    }
+    const q = d.question;
+    const progress = ((d.step - 1) / d.total) * 100;
+    document.getElementById('turnkeyProgress').style.width = progress + '%';
+    let optsHtml = '<div class="turnkey-options">';
+    q.options.forEach(o => { optsHtml += `<button class="turnkey-opt" onclick="answerTurnkey('${q.key}','${o}')">${o}</button>`; });
+    optsHtml += '</div>';
+    document.getElementById('turnkeyContent').innerHTML = `<div class="turnkey-question"><div class="turnkey-step">Шаг ${d.step} из ${d.total}</div><h2>${q.q}</h2>${optsHtml}<input type="text" id="turnkeyCustom" class="inp" placeholder="Или свой ответ..." style="margin-top:15px;"><button class="btn-build" onclick="customTurnkeyAnswer('${q.key}')" style="margin-top:10px;">Далее →</button></div>`;
+  }catch(e){ document.getElementById('turnkeyContent').innerHTML = '<p>Ошибка: '+e.message+'</p>'; }
+}
+
+function answerTurnkey(key, value){ turnkeyAnswers[key] = value; turnkeyStep++; loadTurnkeyStep(); }
+
+function customTurnkeyAnswer(key){
+  const v = document.getElementById('turnkeyCustom').value.trim();
+  if(!v){ alert('Введите ответ'); return; }
+  turnkeyAnswers[key] = v;
+  turnkeyStep++;
+  loadTurnkeyStep();
+}
+
+// ============ ПОДПИСКА ============
+function buySub(plan, period, price, days){
   const key = plan.toLowerCase();
   state.subscription = key;
   localStorage.setItem('sub', key);
-  showModal(`<h3>🎉 ${plan} ${period}</h3><div class="modal-pr">${fmtP(price)}</div><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`);
-}
-
-function useFeature(l){ showModal(`<h3>✅ ${l}</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`); }
-function needSub(){ showModal(`<h3>🔒 Нужна подписка</h3><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('sub')">Оформить</button>`); }
-
-function openChat(){ document.getElementById('chatFull').classList.add('open'); setMode('free'); }
-function openChatPro(){ document.getElementById('chatFull').classList.add('open'); setMode('pro'); }
-function openChatManager(){ document.getElementById('chatFull').classList.add('open'); setMode('manager'); }
-function closeChat(){ document.getElementById('chatFull').classList.remove('open'); }
-
-function setMode(m){
-  state.chatMode = m;
-  ['mFree','mPro','mManager','mSupport'].forEach(id => document.getElementById(id).classList.remove('active'));
-  document.getElementById({'free':'mFree','pro':'mPro','manager':'mManager','support':'mSupport'}[m]).classList.add('active');
-}
-
-function updateContext(){
-  chatContext.theme = document.getElementById('ctxTheme')?.value || '';
-  const chatFull = document.getElementById('chatFull');
-  chatFull.classList.remove('theme-minimal','theme-rgb','theme-anime','theme-glass','theme-retro');
-  if(chatContext.theme) chatFull.classList.add('theme-' + chatContext.theme);
-}
-
-async function sendMsg(){
-  const inp = document.getElementById('chatInp');
-  const msg = inp.value.trim();
-  if(!msg) return;
-  inp.value = '';
-  
-  const msgs = document.getElementById('chatMsgs');
-  msgs.innerHTML += `<div class="msg user">${esc(msg)}</div>`;
-  msgs.innerHTML += `<div class="msg bot" id="typing">⏳ Думаю...</div>`;
-  msgs.scrollTop = msgs.scrollHeight;
-  state.chatHistory.push({role:'user', content:msg});
-  
-  try{
-    const r = await fetch('/api/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({message:msg, mode:state.chatMode, history:state.chatHistory, context:chatContext})});
-    const d = await r.json();
-    const t = document.getElementById('typing');
-    if(t){
-      t.removeAttribute('id');
-      let badges = '';
-      if(d.used_search) badges += '<span class="search-badge">🔍 Веб-поиск</span>';
-      if(d.in_dev) badges += '<span class="dev-badge">🚧 В разработке</span>';
-      t.innerHTML = esc(d.response).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>') + badges;
-    }
-    state.chatHistory.push({role:'assistant', content:d.response});
-  }catch(e){
-    const t = document.getElementById('typing');
-    if(t){ t.removeAttribute('id'); t.textContent = '❌ Ошибка: ' + e.message; }
+  if(days === -1){
+    state.subExpiry = -1;
+    localStorage.setItem('subExpiry', '-1');
+  } else {
+    const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
+    state.subExpiry = expiry;
+    localStorage.setItem('subExpiry', String(expiry));
   }
-  msgs.scrollTop = msgs.scrollHeight;
+  state.buildsUsed = 0;
+  localStorage.setItem('buildsUsed', '0');
+  updateSubBadge();
+  updateBuildsCounter();
+  showModal(`<h3>🎉 ${plan} ${period} активирован!</h3><div class="modal-pr">${fmtP(price)}</div><p>Все функции этого тарифа и предыдущих доступны.</p><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('features')">К функциям</button>`);
+}
+
+function useFeature(label){
+  const btn = event?.target?.closest('.feature-btn');
+  const req = btn?.dataset?.req || 'plus';
+  if(!checkSubLevel(req)){
+    const levelNames = {'plus':'Плюс','premium':'Премиум','vip':'ВИП'};
+    needSub(`Эта функция доступна только с подпиской ${levelNames[req]}`);
+    return;
+  }
+  showModal(`<h3>✅ ${label}</h3><p>Функция активирована!</p><button class="btn-modal" onclick="document.getElementById('modal').style.display='none'">OK</button>`);
+}
+
+function needSub(msg){
+  showModal(`<h3>🔒 Нужна подписка</h3><p>${msg}</p><button class="btn-modal" onclick="document.getElementById('modal').style.display='none';showScreen('sub')">Оформить</button>`);
 }
 
 function esc(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function showModal(h){ document.getElementById('modalBody').innerHTML = h; document.getElementById('modal').style.display = 'flex'; }
 </script>
+
 </body>
 </html>
